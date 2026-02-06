@@ -10,7 +10,7 @@ function CreateTrip({ onTripCreated, onBack }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    fetch('http://192.168.1.3:5001/api/trip/create', {
+    fetch('https://triptips-backend.onrender.com/api/trip/create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formData)
