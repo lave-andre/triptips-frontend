@@ -11,7 +11,7 @@ function Results({ tripId, results, onBack }) {
     if (!userName) return;
 
 
-    fetch(`http://192.168.1.3:5001/api/trip/${tripId}/vote`, {
+    fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}/vote`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -32,7 +32,7 @@ function Results({ tripId, results, onBack }) {
     setSelectedRegion(region);
     
     // Fetch cities for this region
-    fetch(`http://192.168.1.3:5001/api/trip/${tripId}/cities`, {
+    fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}/cities`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ region_id: region.region_id })
