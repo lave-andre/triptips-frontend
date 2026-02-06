@@ -174,7 +174,7 @@ function App() {
               className="btn btn-primary"
               onClick={() => {
                 // Fetch trip and check if ready to calculate
-                fetch(`http://192.168.1.3:5001/api/trip/${tripId}`)
+                fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}`)
                   .then(r => r.json())
                   .then(data => {
                     if (data.success) {
@@ -209,7 +209,7 @@ function App() {
               className="btn btn-primary btn-large"
               onClick={() => {
                 // Call calculate API
-                fetch(`http://192.168.1.3:5001/api/trip/${tripId}/calculate`, {
+                fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}/calculate`, {
                   method: 'POST'
                 })
                   .then(r => r.json())
@@ -259,7 +259,7 @@ function PreferencesForm({ tripId, onSubmitted, onBack, setUserName }) {
 
   const handleSubmit = () => {
     // Submit to API
-    fetch(`http://192.168.1.3:5001/api/trip/${tripId}/preferences`, {
+    fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}/preferences`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formData)
