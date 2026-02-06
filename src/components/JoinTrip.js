@@ -8,7 +8,7 @@ function JoinTrip({ onJoin, onBack }) {
     e.preventDefault();
     
     // Verify trip exists
-    fetch(`http://192.168.1.3:5001/api/trip/${tripId}`)
+    fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}`)
       .then(r => r.json())
       .then(data => {
         if (data.success) {
