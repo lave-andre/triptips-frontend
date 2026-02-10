@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import CreateTrip from './components/CreateTrip';
 import JoinTrip from './components/JoinTrip';
 import Results from './components/Results';
@@ -9,6 +9,38 @@ function App() {
   const [tripId, setTripId] = useState(null);
   const [tripData, setTripData] = useState(null);
   const [userName, setUserName] = useState(null);
+// Check URL for trip ID when page loads
+useEffect(() => {
+  const path = window.location.pathname;
+  const joinMatch = path.match(/\/join\/([a-z0-9]+)/);
+  if (joinMatch) {
+    const id = joinMatch[1];
+    setTripId(id);
+    setCurrentView('loading'); // Show loading first
+    // Fetch trip details
+    fetch(`https://triptips-backend.onrender.com/api/trip/${id}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+        if (data.trip) {
+ 	 setTripData(data.trip);
+	  setCurrentView('preferences');
+	} else {
+	  alert('Trip not found!');
+	  setCurrentView('join');
+	}  
+          setCurrentView('preferences'); // Then show preferences
+        } else {
+          alert('Trip not found!');
+          setCurrentView('home');
+        }
+      })
+      .catch(err => {
+        alert('Error loading trip');
+        setCurrentView('home');
+      });
+  }
+}, []);
 
   const handleTripCreated = (id) => {
     setTripId(id);
@@ -37,6 +69,12 @@ function App() {
       </header>
 
       <main className="app-main">
+	{currentView === 'loading' && (
+          <div className="waiting-view">
+            <h2>Loading trip details...</h2>
+            <p>Please wait</p>
+          </div>
+        )}
         {currentView === 'home' && (
           <div className="home-view">
             <div className="hero-section">
@@ -152,14 +190,24 @@ function App() {
           />
         )}
 
-        {currentView === 'preferences' && (
-          <PreferencesForm 
-            tripId={tripId}
-            onSubmitted={handlePreferencesSubmitted}
-            onBack={() => setCurrentView('home')}
-            setUserName={setUserName}
-          />
-        )}
+	{currentView === 'preferences' && (
+	  <>
+	    {tripData && (
+	      <div className="info-box" style={{margin: '2rem auto', maxWidth: '600px'}}>
+	        <h3>✈️ You're joining: {tripData.organizer_name}'s Trip</h3>
+	        <p><strong>Type:</strong> {tripData.trip_type}</p>
+	        <p><strong>Duration:</strong> {tripData.duration_days} days</p>
+	        <p><strong>Participants:</strong> {tripData.participant_count}</p>
+	      </div>
+	    )}
+	    <PreferencesForm 
+	      tripId={tripId}
+	      onSubmitted={handlePreferencesSubmitted}
+	      onBack={() => setCurrentView('home')}
+	      setUserName={setUserName}
+	    />
+	  </>
+	)}
 
         {currentView === 'waiting' && (
           <div className="waiting-view">
@@ -174,7 +222,7 @@ function App() {
               className="btn btn-primary"
               onClick={() => {
                 // Fetch trip and check if ready to calculate
-                fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}`)
+                fetch(`http://192.168.1.3:5001/api/trip/${tripId}`)
                   .then(r => r.json())
                   .then(data => {
                     if (data.success) {
@@ -209,7 +257,7 @@ function App() {
               className="btn btn-primary btn-large"
               onClick={() => {
                 // Call calculate API
-                fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}/calculate`, {
+                fetch(`http://192.168.1.3:5001/api/trip/${tripId}/calculate`, {
                   method: 'POST'
                 })
                   .then(r => r.json())
@@ -259,7 +307,7 @@ function PreferencesForm({ tripId, onSubmitted, onBack, setUserName }) {
 
   const handleSubmit = () => {
     // Submit to API
-    fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}/preferences`, {
+    fetch(`http://192.168.1.3:5001/api/trip/${tripId}/preferences`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formData)
