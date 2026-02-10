@@ -230,7 +230,7 @@ useEffect(() => {
                       if (trip.participants.length >= 2) {
                         setCurrentView('ready_calculate');
                       } else {
-                        alert(''Need at least 2 participants. Currently: ' + trip.participant_count);
+                        alert('Need at least 2 participants. Currently: ' + trip.participant_count);
                       }
                     }
                   });
