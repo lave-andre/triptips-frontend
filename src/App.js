@@ -9,38 +9,6 @@ function App() {
   const [tripId, setTripId] = useState(null);
   const [tripData, setTripData] = useState(null);
   const [userName, setUserName] = useState(null);
-// Check URL for trip ID when page loads
-useEffect(() => {
-  const path = window.location.pathname;
-  const joinMatch = path.match(/\/join\/([a-z0-9]+)/);
-  if (joinMatch) {
-    const id = joinMatch[1];
-    setTripId(id);
-    setCurrentView('loading'); // Show loading first
-    // Fetch trip details
-    fetch(`https://triptips-backend.onrender.com/api/trip/${id}`)
-      .then(r => r.json())
-      .then(data => {
-        if (data.success) {
-        if (data.trip) {
- 	 setTripData(data.trip);
-	  setCurrentView('preferences');
-	} else {
-	  alert('Trip not found!');
-	  setCurrentView('join');
-	}  
-          setCurrentView('preferences'); // Then show preferences
-        } else {
-          alert('Trip not found!');
-          setCurrentView('home');
-        }
-      })
-      .catch(err => {
-        alert('Error loading trip');
-        setCurrentView('home');
-      });
-  }
-}, []);
 
   const handleTripCreated = (id) => {
     setTripId(id);
@@ -227,14 +195,16 @@ useEffect(() => {
                   .then(data => {
                     if (data.success) {
                       const trip = data.trip;
-                      if (trip.participants.length >= 2) {
-                        setCurrentView('ready_calculate');
-                      } else {
-                        alert('Need at least 2 participants. Currently: ' + trip.participant_count);
-                      }
-                    }
-                  });
-              }}
+                      if (trip.participants && trip.participants.length >= 2) {
+				          setCurrentView('ready_calculate');
+				        } else {
+				          const count = trip.participants ? trip.participants.length : 0;
+				          alert('Need at least 2 participants. Currently: ' + count);
+				        }
+				      }
+				    })
+				    .catch(err => alert('Error: ' + err));
+				}}
             >
               Check if Ready to Calculate
             </button>
