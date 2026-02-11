@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 
 function CreateTrip({ onTripCreated, onBack }) {
   const [formData, setFormData] = useState({
+    trip_name: '',
     organizer_name: '',
     trip_type: '',
     duration_days: 7
   });
-
+  
   const handleSubmit = (e) => {
     e.preventDefault();
     
@@ -33,7 +34,19 @@ function CreateTrip({ onTripCreated, onBack }) {
       <h2>Create a New Trip</h2>
       <p className="help-text">Set up your trip and we'll help you find the perfect destination</p>
 
-      <form onSubmit={handleSubmit} className="create-trip-form">
+      < onSubmit={handleSubmit} className="create-trip-form">
+        <div className="form-group">
+          <label>Trip Name</label>
+          <input 
+            type="text"
+            className="input"
+            placeholder="e.g., Summer Europe Trip 2026"
+            value={formData.trip_name}
+            onChange={(e) => setFormData({ ...formData, trip_name: e.target.value })}
+            required
+          />
+        </div>
+
         <div className="form-group">
           <label>Your Name (Organizer)</label>
           <input 
