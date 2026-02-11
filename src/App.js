@@ -302,14 +302,19 @@ useEffect(() => {
         )}
 
         {currentView === 'results' && (
-          <Results 
-            tripId={tripId}
-		 	results={tripData?.results || tripData}
-            tripData={tripData}
-            onBack={() => setCurrentView('home')}
-          />
-        )}
-      </main>
+		  <Results 
+		    tripId={tripId}
+		    results={tripData?.results || tripData}
+		    tripData={tripData}
+		    onBack={() => setCurrentView('home')}
+		    onRecalculate={(newResults) => {
+		      setTripData(prev => ({
+		        ...prev,
+		        results: newResults
+		      }));
+		    }}
+		  />
+		)}
 
       <footer className="app-footer">
         <p>Made with ❤️ for group travel planning</p>
