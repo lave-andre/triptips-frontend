@@ -19,7 +19,7 @@ function CreateTrip({ onTripCreated, onBack }) {
       .then(r => r.json())
       .then(data => {
         if (data.success) {
-          onTripCreated(data.trip_id);
+          onTripCreated(data.trip_id, formData.trip_name);
         } else {
           alert('Error creating trip');
         }
