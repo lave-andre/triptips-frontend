@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-function Results({ tripId, results, tripData, onBack }) {
+function Results({ tripId, results, tripData, onBack, onRecalculate }) {
   const [selectedRegion, setSelectedRegion] = useState(null);
   const [cities, setCities] = useState(null);
   const [votes, setVotes] = useState({});
@@ -135,25 +135,45 @@ function Results({ tripId, results, tripData, onBack }) {
             </p>
           </div>
           <button 
-            className="btn btn-primary"
-            onClick={() => {
-              fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}/calculate`, {
-                method: 'POST'
-              })
-                .then(r => r.json())
-                .then(data => {
-                  if (data.success) {
-                    // Reload the page to show new results
-                    window.location.reload();
-                  } else {
-                    alert('Error recalculating: ' + data.error);
-                  }
+              className="btn btn-primary"
+              onClick={(e) => {
+                if (!window.confirm('Recalculate with latest preferences?')) return;
+                
+                // Show loading state
+                e.target.disabled = true;
+                e.target.textContent = '⏳ Calculating...';
+                
+                fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}/calculate`, {
+                  method: 'POST'
                 })
-                .catch(err => alert('Error: ' + err));
-            }}
-          >
-            🔄 Recalculate
-          </button>
+                  .then(r => r.json())
+                  .then(data => {
+                    if (data.success) {
+                      // Fetch updated participant count
+                      fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}`)
+                        .then(r2 => r2.json())
+                        .then(tripData => {
+                          if (tripData.success && tripData.trip.participants) {
+                            setParticipantCount(tripData.trip.participants.length);
+                          }
+                        });
+                      
+                      // Update results through callback
+                      onRecalculate(data.results);
+                      alert('✅ Results updated with ' + participantCount + ' participants!');
+                    } else {
+                      alert('Error recalculating: ' + data.error);
+                    }
+                  })
+                  .catch(err => alert('Error: ' + err))
+                  .finally(() => {
+                    e.target.disabled = false;
+                    e.target.textContent = '🔄 Recalculate';
+                  });
+              }}
+            >
+              🔄 Recalculate
+            </button>
         </div>
       </div>
 
