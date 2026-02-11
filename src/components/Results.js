@@ -11,6 +11,27 @@ function Results({ tripId, results, tripData, onBack }) {
     const userName = prompt("Enter your name to vote:");
     if (!userName) return;
 
+  const handleSelectRegion = (region) => {
+    setSelectedRegion(region);
+    
+    // Fetch cities for this region
+    fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}/cities`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ region_id: region.region_id })
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          setCities(data.cities);
+        }
+      })
+      .catch(err => {
+        alert('No detailed city data available for this region yet');
+        setCities([]);
+      });
+  };
+
     // Fetch current participant count
       useEffect(() => {
         fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}`)
@@ -39,28 +60,7 @@ function Results({ tripId, results, tripData, onBack }) {
         }
       });
   };
-
-  const handleSelectRegion = (region) => {
-    setSelectedRegion(region);
     
-    // Fetch cities for this region
-    fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}/cities`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ region_id: region.region_id })
-    })
-      .then(r => r.json())
-      .then(data => {
-        if (data.success) {
-          setCities(data.cities);
-        }
-      })
-      .catch(err => {
-        alert('No detailed city data available for this region yet');
-        setCities([]);
-      });
-  };
-
   if (cities && selectedRegion) {
     return (
       <div className="cities-view">
