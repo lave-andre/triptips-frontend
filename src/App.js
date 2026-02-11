@@ -10,6 +10,17 @@ function App() {
   const [tripData, setTripData] = useState(null);
   const [userName, setUserName] = useState(null);
 
+	// Auto-join trip from URL
+  useEffect(() => {
+    const path = window.location.pathname;
+    const match = path.match(/\/join\/([a-z0-9]+)/i);
+    if (match) {
+      const id = match[1];
+      setTripId(id);
+      setCurrentView('preferences');
+    }
+  }, []);
+
   const handleTripCreated = (id) => {
     setTripId(id);
     setCurrentView('share');
