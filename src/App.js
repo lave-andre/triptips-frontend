@@ -9,6 +9,7 @@ function App() {
   const [tripId, setTripId] = useState(null);
   const [tripData, setTripData] = useState(null);
   const [userName, setUserName] = useState(null);
+  const [isOrganizerSession, setIsOrganizerSession] = useState(false);
 
 // Auto-join trip from URL
 useEffect(() => {
@@ -176,6 +177,7 @@ useEffect(() => {
 					      .then(data => {
 					        if (data.success) {
 					          setTripData(data.trip);
+							  setIsOrganizerSession(true);
 					          setCurrentView('preferences');
 					        }
 					      })
@@ -218,7 +220,8 @@ useEffect(() => {
 	    <PreferencesForm 
 	      tripId={tripId}
 		  tripData={tripData}
-	      onSubmitted={handlePreferencesSubmitted}
+	      isOrganizer={isOrganizerSession}
+		  onSubmitted={handlePreferencesSubmitted}
 	      onBack={() => setCurrentView('home')}
 	      setUserName={setUserName}
 	    />
@@ -311,10 +314,10 @@ useEffect(() => {
 }
 
 // Preferences Form Component (inline for MVP)
-function PreferencesForm({ tripId, tripData, onSubmitted, onBack, setUserName }) {
+function PreferencesForm({ tripId, tripData, isOrganizer, onSubmitted, onBack, setUserName }) {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
-    name: tripData?.organizer_name || '',
+    name: isOrganizer ? (tripData?.organizer_name || '') : '',
     geographic_preference: '',
     environment: [],
     style: [],
@@ -359,22 +362,23 @@ function PreferencesForm({ tripId, tripData, onSubmitted, onBack, setUserName })
       </div>
 
       <div className="form-content">
-        {step === 1 && (
-          <div className="form-step">
-            <h3>What's your name?</h3>
-            <input 
-              type="text"
-              className="input-large"
-              placeholder="Enter your name"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-			  disabled={tripData?.organizer_name ? true : false}
-            />
-			{tripData?.organizer_name && (
-			  <p className="help-text">You're the organizer of this trip</p>
-			)}
-          </div>
-        )}
+
+	  {step === 1 && (
+  		<div className="form-step">
+		    <h3>What's your name?</h3>
+		    <input 
+		      type="text"
+		      className="input-large"
+		      placeholder="Enter your name"
+		      value={formData.name}
+		      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+		      disabled={isOrganizer}
+		    />
+    		{isOrganizer && (
+      			<p className="help-text">You're the organizer of this trip</p>
+    		)}
+  		</div>
+	  )}
 
         {step === 2 && (
           <div className="form-step">
