@@ -21,7 +21,24 @@ useEffect(() => {
   if (match) {
     const id = match[1];
     setTripId(id);
-    setCurrentView('preferences');
+    
+    // Fetch trip data
+    fetch(`https://triptips-backend.onrender.com/api/trip/${id}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          setTripData(data.trip);
+          setCurrentView('preferences');
+        } else {
+          alert('Trip not found!');
+          setCurrentView('home');
+        }
+      })
+      .catch(err => {
+        console.error('Error loading trip:', err);
+        setCurrentView('home');
+      });
+    
     // Clean up URL
     window.history.replaceState({}, '', '/join/' + id);
   }
@@ -153,9 +170,21 @@ useEffect(() => {
               <button 
                 className="btn btn-primary"
                 onClick={() => {
-                  setCurrentView('preferences');
-                }}
-              >
+					// Fetch trip data first
+					    fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}`)
+					      .then(r => r.json())
+					      .then(data => {
+					        if (data.success) {
+					          setTripData(data.trip);
+					          setCurrentView('preferences');
+					        }
+					      })
+					      .catch(err => {
+					        console.error('Error fetching trip:', err);
+					        setCurrentView('preferences');
+					      });
+					  }}
+					>
                 Fill Out My Preferences
               </button>
 
@@ -188,6 +217,7 @@ useEffect(() => {
 		)}
 	    <PreferencesForm 
 	      tripId={tripId}
+		  tripData={tripData}
 	      onSubmitted={handlePreferencesSubmitted}
 	      onBack={() => setCurrentView('home')}
 	      setUserName={setUserName}
@@ -281,10 +311,10 @@ useEffect(() => {
 }
 
 // Preferences Form Component (inline for MVP)
-function PreferencesForm({ tripId, onSubmitted, onBack, setUserName }) {
+function PreferencesForm({ tripId, tripData, onSubmitted, onBack, setUserName }) {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
-    name: '',
+    name: tripData?.organizer_name || '',
     geographic_preference: '',
     environment: [],
     style: [],
@@ -338,7 +368,11 @@ function PreferencesForm({ tripId, onSubmitted, onBack, setUserName }) {
               placeholder="Enter your name"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+			  disabled={tripData?.organizer_name ? true : false}
             />
+			{tripData?.organizer_name && (
+			  <p className="help-text">You're the organizer of this trip</p>
+			)}
           </div>
         )}
 
