@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-function Results({ tripId, results, onBack }) {
+function Results({ tripId, results, tripData, onBack }) {
   const [selectedRegion, setSelectedRegion] = useState(null);
   const [cities, setCities] = useState(null);
   const [votes, setVotes] = useState({});
@@ -113,7 +113,7 @@ function Results({ tripId, results, onBack }) {
     <div className="results-view">
       <button className="btn btn-text" onClick={onBack}>← Back to Home</button>
 
-      <h2>🎯 Your Top Destination Matches</h2>
+      <h2>🎯 Your Top Destination Matches{tripData?.trip_name ? ` for "${tripData.trip_name}"` : ''}!</h2>
       
       {results.geographic_analysis && results.geographic_analysis.is_split && (
         <div className="info-box warning">
