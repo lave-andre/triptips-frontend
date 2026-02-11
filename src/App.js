@@ -27,8 +27,9 @@ useEffect(() => {
   }
 }, []);
 	
-  const handleTripCreated = (id) => {
+  const handleTripCreated = (id, tripName) => {
     setTripId(id);
+	setTripData({ trip_name: tripName });
     setCurrentView('share');
   };
 
