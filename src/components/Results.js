@@ -19,30 +19,8 @@ function Results({ tripId, results, tripData, onBack }) {
       }, [tripId]);
   
   const handleVote = (regionId) => {
-    // In a real app, would get user name from session
     const userName = prompt("Enter your name to vote:");
     if (!userName) return;
-
-  const handleSelectRegion = (region) => {
-    setSelectedRegion(region);
-    
-      // Fetch cities for this region
-      fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}/cities`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ region_id: region.region_id })
-      })
-        .then(r => r.json())
-        .then(data => {
-          if (data.success) {
-            setCities(data.cities);
-          }
-        })
-        .catch(err => {
-          alert('No detailed city data available for this region yet');
-          setCities([]);
-        });
-    };
 
     fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}/vote`, {
       method: 'POST',
@@ -58,6 +36,27 @@ function Results({ tripId, results, tripData, onBack }) {
           setVotes(data.vote_counts);
           alert('Vote recorded!');
         }
+      });
+  };
+
+  const handleSelectRegion = (region) => {
+    setSelectedRegion(region);
+    
+    // Fetch cities for this region
+    fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}/cities`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ region_id: region.region_id })
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          setCities(data.cities);
+        }
+      })
+      .catch(err => {
+        alert('No detailed city data available for this region yet');
+        setCities([]);
       });
   };
     
