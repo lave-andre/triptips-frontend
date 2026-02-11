@@ -5,7 +5,19 @@ function Results({ tripId, results, tripData, onBack }) {
   const [cities, setCities] = useState(null);
   const [votes, setVotes] = useState({});
   const [participantCount, setParticipantCount] = useState(0);
-
+    
+    // Fetch current participant count
+      useEffect(() => {
+        fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}`)
+          .then(r => r.json())
+          .then(data => {
+            if (data.success && data.trip.participants) {
+              setParticipantCount(data.trip.participants.length);
+            }
+          })
+          .catch(err => console.error('Error fetching participant count:', err));
+      }, [tripId]);
+  
   const handleVote = (regionId) => {
     // In a real app, would get user name from session
     const userName = prompt("Enter your name to vote:");
@@ -31,18 +43,6 @@ function Results({ tripId, results, tripData, onBack }) {
         setCities([]);
       });
   };
-
-    // Fetch current participant count
-      useEffect(() => {
-        fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}`)
-          .then(r => r.json())
-          .then(data => {
-            if (data.success && data.trip.participants) {
-              setParticipantCount(data.trip.participants.length);
-            }
-          })
-          .catch(err => console.error('Error fetching participant count:', err));
-      }, [tripId]);
 
     fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}/vote`, {
       method: 'POST',
