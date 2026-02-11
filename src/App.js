@@ -122,7 +122,7 @@ useEffect(() => {
         {currentView === 'share' && (
           <div className="share-view">
             <div className="success-message">
-              <h2>✅ Trip Created!</h2>
+              <h2>✅ {tripData?.trip_name || 'Trip'} Created!</h2>
               <p>Your trip ID: <strong>{tripId}</strong></p>
             </div>
 
