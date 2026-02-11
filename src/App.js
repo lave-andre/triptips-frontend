@@ -178,13 +178,13 @@ useEffect(() => {
 	{currentView === 'preferences' && (
 	  <>
 	    {tripData && (
-	      <div className="info-box" style={{margin: '2rem auto', maxWidth: '600px'}}>
-	        <h3>✈️ You're joining: {tripData.organizer_name}'s Trip</h3>
-	        <p><strong>Type:</strong> {tripData.trip_type}</p>
-	        <p><strong>Duration:</strong> {tripData.duration_days} days</p>
-	        <p><strong>Participants:</strong> {tripData.participant_count}</p>
-	      </div>
-	    )}
+		  <div className="info-box" style={{margin: '2rem auto', maxWidth: '600px'}}>
+		    <h3>✈️ {tripData.trip_name}</h3>
+		    <p><strong>Organized by:</strong> {tripData.organizer_name}</p>
+		    <p><strong>Type:</strong> {tripData.trip_type}</p>
+		    <p><strong>Duration:</strong> {tripData.duration_days} days</p>
+		  </div>
+		)}
 	    <PreferencesForm 
 	      tripId={tripId}
 	      onSubmitted={handlePreferencesSubmitted}
