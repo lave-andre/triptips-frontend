@@ -60,11 +60,15 @@ useEffect(() => {
     setCurrentView('waiting');
   };
 
-  const handleViewResults = (data) => {
-    setTripData(data);
-    setCurrentView('results');
-  };
-
+	const handleViewResults = (resultsData) => {
+	  // Merge results with existing trip data
+	  setTripData(prev => ({
+	    ...prev,
+	    results: resultsData
+	  }));
+	  setCurrentView('results');
+	};
+	
   return (
     <div className="App">
       <header className="app-header">
@@ -300,7 +304,8 @@ useEffect(() => {
         {currentView === 'results' && (
           <Results 
             tripId={tripId}
-            results={tripData}
+		 	results={tripData?.results || tripData}
+            tripData={tripData}
             onBack={() => setCurrentView('home')}
           />
         )}
