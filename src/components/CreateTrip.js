@@ -34,7 +34,7 @@ function CreateTrip({ onTripCreated, onBack }) {
       <h2>Create a New Trip</h2>
       <p className="help-text">Set up your trip and we'll help you find the perfect destination</p>
 
-      <onSubmit={handleSubmit} className="create-trip-form">
+      <form onSubmit={handleSubmit} className="create-trip-form">
         <div className="form-group">
           <label>Trip Name</label>
           <input 
