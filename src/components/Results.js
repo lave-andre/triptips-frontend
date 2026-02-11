@@ -26,23 +26,23 @@ function Results({ tripId, results, tripData, onBack }) {
   const handleSelectRegion = (region) => {
     setSelectedRegion(region);
     
-    // Fetch cities for this region
-    fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}/cities`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ region_id: region.region_id })
-    })
-      .then(r => r.json())
-      .then(data => {
-        if (data.success) {
-          setCities(data.cities);
-        }
+      // Fetch cities for this region
+      fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}/cities`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ region_id: region.region_id })
       })
-      .catch(err => {
-        alert('No detailed city data available for this region yet');
-        setCities([]);
-      });
-  };
+        .then(r => r.json())
+        .then(data => {
+          if (data.success) {
+            setCities(data.cities);
+          }
+        })
+        .catch(err => {
+          alert('No detailed city data available for this region yet');
+          setCities([]);
+        });
+    };
 
     fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}/vote`, {
       method: 'POST',
