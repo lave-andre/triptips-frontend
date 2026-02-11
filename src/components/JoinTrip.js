@@ -32,7 +32,7 @@ function JoinTrip({ onJoin, onBack }) {
       
       {tripInfo ? (
         <div className="info-box">
-          <h3>✈️ Trip Details</h3>
+          <h3>✈️ {tripInfo.trip_name || 'Trip Details'}</h3>
           <p><strong>Organized by:</strong> {tripInfo.organizer_name}</p>
           <p><strong>Type:</strong> {tripInfo.trip_type}</p>
           <p><strong>Duration:</strong> {tripInfo.duration_days} days</p>
