@@ -10,17 +10,23 @@ function App() {
   const [tripData, setTripData] = useState(null);
   const [userName, setUserName] = useState(null);
 
-	// Auto-join trip from URL
-  useEffect(() => {
-    const path = window.location.pathname;
-    const match = path.match(/\/join\/([a-z0-9]+)/i);
-    if (match) {
-      const id = match[1];
-      setTripId(id);
-      setCurrentView('preferences');
-    }
-  }, []);
-
+// Auto-join trip from URL
+useEffect(() => {
+  // Check for redirect parameter
+  const params = new URLSearchParams(window.location.search);
+  const redirect = params.get('redirect');
+  const path = redirect || window.location.pathname;
+  
+  const match = path.match(/\/join\/([a-z0-9]+)/i);
+  if (match) {
+    const id = match[1];
+    setTripId(id);
+    setCurrentView('preferences');
+    // Clean up URL
+    window.history.replaceState({}, '', '/join/' + id);
+  }
+}, []);
+	
   const handleTripCreated = (id) => {
     setTripId(id);
     setCurrentView('share');
