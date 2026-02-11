@@ -1,15 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 function Results({ tripId, results, tripData, onBack }) {
   const [selectedRegion, setSelectedRegion] = useState(null);
   const [cities, setCities] = useState(null);
   const [votes, setVotes] = useState({});
+  const [participantCount, setParticipantCount] = useState(0);
 
   const handleVote = (regionId) => {
     // In a real app, would get user name from session
     const userName = prompt("Enter your name to vote:");
     if (!userName) return;
 
+    // Fetch current participant count
+      useEffect(() => {
+        fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}`)
+          .then(r => r.json())
+          .then(data => {
+            if (data.success && data.trip.participants) {
+              setParticipantCount(data.trip.participants.length);
+            }
+          })
+          .catch(err => console.error('Error fetching participant count:', err));
+      }, [tripId]);
 
     fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}/vote`, {
       method: 'POST',
@@ -114,7 +126,38 @@ function Results({ tripId, results, tripData, onBack }) {
       <button className="btn btn-text" onClick={onBack}>← Back to Home</button>
 
       <h2>🎯 Your Top Destination Matches{tripData?.trip_name ? ` for "${tripData.trip_name}"` : ''}!</h2>
-      
+
+      <div className="info-box" style={{marginBottom: '1rem'}}>
+        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+          <div>
+            <strong>👥 {participantCount} participant{participantCount !== 1 ? 's' : ''} submitted preferences</strong>
+            <p style={{margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: '#666'}}>
+              More people joined? Recalculate to include their preferences.
+            </p>
+          </div>
+          <button 
+            className="btn btn-primary"
+            onClick={() => {
+              fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}/calculate`, {
+                method: 'POST'
+              })
+                .then(r => r.json())
+                .then(data => {
+                  if (data.success) {
+                    // Reload the page to show new results
+                    window.location.reload();
+                  } else {
+                    alert('Error recalculating: ' + data.error);
+                  }
+                })
+                .catch(err => alert('Error: ' + err));
+            }}
+          >
+            🔄 Recalculate
+          </button>
+        </div>
+      </div>
+
       {results.geographic_analysis && results.geographic_analysis.is_split && (
         <div className="info-box warning">
           <strong>⚠️ Your group has diverse geographic preferences!</strong>
