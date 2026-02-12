@@ -315,7 +315,8 @@ useEffect(() => {
 		    }}
 		  />
 		)}
-
+	  </main>
+				
       <footer className="app-footer">
         <p>Made with ❤️ for group travel planning</p>
       </footer>
