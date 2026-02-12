@@ -341,33 +341,5 @@ function Results({ tripId, results, tripData, onBack, onRecalculate }) {
       })}
   </div>
 )}
-
-{/* Winning region banner */}
-{Object.keys(votes).length > 0 && (() => {
-  const majority = Math.ceil(participantCount / 2);
-  const winningEntry = Object.entries(votes)
-    .find(([regionId, count]) => count >= majority);
-  
-  if (winningEntry) {
-    const [winningRegionId, voteCount] = winningEntry;
-    const winningRegion = results.regions.find(r => r.region_id === winningRegionId);
-    
-    if (winningRegion && !selectedRegion) {
-      return (
-        <div className="info-box" style={{marginTop: '2rem', background: '#d4edda'}}>
-          <h3>🎉 {winningRegion.region_name} wins!</h3>
-          <p>{voteCount} out of {participantCount} voted for this destination.</p>
-          <button 
-            className="btn btn-primary btn-large"
-            onClick={() => handleSelectRegion(winningRegion)}
-          >
-            🏙️ Explore Cities in {winningRegion.region_name}
-          </button>
-        </div>
-      );
-    }
-  }
-  return null;
-})()}
   
 export default Results;
