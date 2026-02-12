@@ -340,9 +340,7 @@ function Results({ tripId, results, tripData, onBack, onRecalculate }) {
               ) : null;
             })}
         </div>
-      )}
-
-      {Object.keys(votes).length > 0 && (() => {
+        {Object.keys(votes).length > 0 && (() => {
         // Find the winning region (if any)
         const majority = Math.ceil(participantCount / 2);
         const winningEntry = Object.entries(votes)
@@ -369,5 +367,6 @@ function Results({ tripId, results, tripData, onBack, onRecalculate }) {
         }
         return null;
       })()}
+      )}
 
 export default Results;
