@@ -11,9 +11,46 @@ function App() {
   const [userName, setUserName] = useState(null);
   const [isOrganizerSession, setIsOrganizerSession] = useState(false);
 
-// Auto-join trip from URL
+// Auto-join trip from URL and restore session
 useEffect(() => {
-  // Check for redirect parameter
+  // First, try to restore from localStorage
+  const savedSession = localStorage.getItem('triptips_session');
+  if (savedSession) {
+    try {
+      const session = JSON.parse(savedSession);
+      // Check if session is less than 7 days old
+      const sessionAge = Date.now() - session.timestamp;
+      const sevenDays = 7 * 24 * 60 * 60 * 1000;
+      
+      if (sessionAge < sevenDays && session.tripId) {
+        setTripId(session.tripId);
+        setUserName(session.userName);
+        setIsOrganizerSession(session.isOrganizer || false);
+        
+        // Fetch latest trip data
+        fetch(`https://triptips-backend.onrender.com/api/trip/${session.tripId}`)
+          .then(r => r.json())
+          .then(data => {
+            if (data.success) {
+              setTripData(data.trip);
+              // If they already submitted, show waiting view
+              if (session.hasSubmitted) {
+                setCurrentView('waiting');
+              }
+            }
+          })
+          .catch(err => console.error('Error restoring session:', err));
+      } else {
+        // Session expired, clear it
+        localStorage.removeItem('triptips_session');
+      }
+    } catch (err) {
+      console.error('Error parsing saved session:', err);
+      localStorage.removeItem('triptips_session');
+    }
+  }
+  
+  // Then check URL for join link (this takes priority)
   const params = new URLSearchParams(window.location.search);
   const redirect = params.get('redirect');
   const path = redirect || window.location.pathname;
@@ -44,10 +81,24 @@ useEffect(() => {
     window.history.replaceState({}, '', '/join/' + id);
   }
 }, []);
+    
+    // Clean up URL
+    window.history.replaceState({}, '', '/join/' + id);
+  }
+}, []);
 	
   const handleTripCreated = (id, tripName) => {
     setTripId(id);
 	setTripData({ trip_name: tripName });
+	  // Save organizer session
+	  const session = {
+	    tripId: id,
+	    userName: null, // Will be set when they fill preferences
+	    isOrganizer: true,
+	    hasSubmitted: false,
+	    timestamp: Date.now()
+	  };
+	  localStorage.setItem('triptips_session', JSON.stringify(session));
     setCurrentView('share');
   };
 
@@ -57,7 +108,17 @@ useEffect(() => {
   };
 
   const handlePreferencesSubmitted = () => {
-    setCurrentView('waiting');
+  // Save session to localStorage
+  const session = {
+    tripId: tripId,
+    userName: userName,
+    isOrganizer: isOrganizerSession,
+    hasSubmitted: true,
+    timestamp: Date.now()
+  };
+  localStorage.setItem('triptips_session', JSON.stringify(session));
+  
+  setCurrentView('waiting');
   };
 
 	const handleViewResults = (resultsData) => {
@@ -72,9 +133,27 @@ useEffect(() => {
   return (
     <div className="App">
       <header className="app-header">
-        <h1>🌍 TripTips</h1>
-        <p className="tagline">Find the perfect destination for your group</p>
-      </header>
+		  <h1>🌍 TripTips</h1>
+		  <p className="tagline">Find the perfect destination for your group</p>
+		  {tripId && userName && (
+		    <p style={{fontSize: '0.9rem', marginTop: '0.5rem'}}>
+		      Logged in as <strong>{userName}</strong> • Trip: {tripId}
+		      {' '}
+		      <button 
+		        className="btn btn-text"
+		        style={{fontSize: '0.8rem', padding: '0.25rem 0.5rem'}}
+		        onClick={() => {
+		          if (window.confirm('Leave this trip and start fresh?')) {
+		            localStorage.removeItem('triptips_session');
+		            window.location.href = '/';
+		          }
+		        }}
+		      >
+		        Leave Trip
+		      </button>
+		    </p>
+		  )}
+		</header>
 
       <main className="app-main">
 	{currentView === 'loading' && (
@@ -195,11 +274,14 @@ useEffect(() => {
               </button>
 
               <button 
-                className="btn btn-secondary"
-                onClick={() => setCurrentView('home')}
-              >
-                Done
-              </button>
+				  className="btn btn-secondary"
+				  onClick={() => {
+				    // Don't clear session - just go home
+				    setCurrentView('home');
+				  }}
+				>
+				  Back to Home
+				</button>
             </div>
           </div>
         )}
