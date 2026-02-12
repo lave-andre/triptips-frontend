@@ -81,11 +81,6 @@ useEffect(() => {
     window.history.replaceState({}, '', '/join/' + id);
   }
 }, []);
-    
-    // Clean up URL
-    window.history.replaceState({}, '', '/join/' + id);
-  }
-}, []);
 	
   const handleTripCreated = (id, tripName) => {
     setTripId(id);
