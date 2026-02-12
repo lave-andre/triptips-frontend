@@ -344,6 +344,5 @@ function Results({ tripId, results, tripData, onBack, onRecalculate }) {
       </div>
     );
   }
-}
 
 export default Results;
