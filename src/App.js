@@ -159,6 +159,31 @@ useEffect(() => {
         )}
         {currentView === 'home' && (
           <div className="home-view">
+		    {/* Show resume trip card if user has active session */}
+		    {tripId && userName && (
+		      <div className="info-box" style={{marginBottom: '2rem', background: '#e7f3ff'}}>
+		        <h3>📌 Your Active Trip</h3>
+		        <p><strong>Trip:</strong> {tripData?.trip_name || tripId}</p>
+		        <p><strong>Your name:</strong> {userName}</p>
+		        <button 
+		          className="btn btn-primary"
+		          onClick={() => {
+		            // Fetch latest trip data and go to waiting view
+		            fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}`)
+		              .then(r => r.json())
+		              .then(data => {
+		                if (data.success) {
+		                  setTripData(data.trip);
+		                  setCurrentView('waiting');
+		                }
+		              });
+		          }}
+		        >
+		          Resume Trip →
+		        </button>
+		      </div>
+		    )}
+			  
             <div className="hero-section">
               <h2>Planning a trip with friends?</h2>
               <p>Different preferences? No problem! Our algorithm finds destinations that make everyone happy.</p>
