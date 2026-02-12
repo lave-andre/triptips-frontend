@@ -341,5 +341,9 @@ function Results({ tripId, results, tripData, onBack, onRecalculate }) {
       })}
   </div>
 )}
-  
+      </div>
+    );
+  }
+}
+
 export default Results;
