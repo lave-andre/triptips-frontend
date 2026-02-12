@@ -21,7 +21,7 @@ function Results({ tripId, results, tripData, onBack, onRecalculate }) {
   const handleVote = (regionId) => {
     const userName = prompt("Enter your name to vote:");
     if (!userName) return;
-
+  
     fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}/vote`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -34,11 +34,27 @@ function Results({ tripId, results, tripData, onBack, onRecalculate }) {
       .then(data => {
         if (data.success) {
           setVotes(data.vote_counts);
-          alert('Vote recorded!');
+          
+          // Check if this vote creates a majority
+          const totalVotes = data.total_votes || 0;
+          const thisRegionVotes = data.vote_counts[regionId] || 0;
+          const majority = Math.ceil(participantCount / 2);
+          
+          if (thisRegionVotes >= majority) {
+            // Find the region object
+            const region = results.regions?.find(r => r.region_id === regionId);
+            if (region) {
+              alert(`🎉 Majority reached! ${region.region_name} wins with ${thisRegionVotes} votes!`);
+              // Auto-select this region and show cities
+              handleSelectRegion(region);
+            }
+          } else {
+            alert(`Vote recorded! ${thisRegionVotes}/${majority} votes needed for majority.`);
+          }
         }
       });
   };
-
+  
   const handleSelectRegion = (region) => {
     setSelectedRegion(region);
     
@@ -61,12 +77,22 @@ function Results({ tripId, results, tripData, onBack, onRecalculate }) {
   };
     
   if (cities && selectedRegion) {
+    const majority = Math.ceil(participantCount / 2);
+    const regionVotes = votes[selectedRegion.region_id] || 0;
+    const isWinner = regionVotes >= majority;
+    
     return (
       <div className="cities-view">
         <button className="btn btn-text" onClick={() => { setCities(null); setSelectedRegion(null); }}>
           ← Back to Regions
         </button>
-
+  
+        {isWinner && (
+          <div className="info-box" style={{background: '#d4edda', marginBottom: '1rem'}}>
+            🏆 <strong>{selectedRegion.region_name}</strong> won the vote with {regionVotes} out of {participantCount} votes!
+          </div>
+        )}
+  
         <h2>📍 Best Cities in {selectedRegion.region_name}</h2>
         <p className="help-text">Here are the top cities that match your group's preferences</p>
 
@@ -289,20 +315,59 @@ function Results({ tripId, results, tripData, onBack, onRecalculate }) {
       {Object.keys(votes).length > 0 && (
         <div className="voting-summary">
           <h3>🗳️ Voting Results</h3>
+          <p className="help-text">
+            {Math.ceil(participantCount / 2)} votes needed for majority
+          </p>
           {Object.entries(votes)
             .sort((a, b) => b[1] - a[1])
             .map(([regionId, count]) => {
               const region = results.regions.find(r => r.region_id === regionId);
+              const majority = Math.ceil(participantCount / 2);
+              const isMajority = count >= majority;
+              
               return region ? (
-                <div key={regionId} className="vote-result">
+                <div 
+                  key={regionId} 
+                  className="vote-result"
+                  style={{
+                    background: isMajority ? '#d4edda' : 'white',
+                    border: isMajority ? '2px solid #28a745' : '1px solid #e0e0e0'
+                  }}
+                >
                   <strong>{region.region_name}</strong>: {count} vote{count > 1 ? 's' : ''}
+                  {isMajority && ' 🏆 WINNER!'}
                 </div>
               ) : null;
             })}
         </div>
       )}
-    </div>
-  );
-}
+
+      {Object.keys(votes).length > 0 && (() => {
+        // Find the winning region (if any)
+        const majority = Math.ceil(participantCount / 2);
+        const winningEntry = Object.entries(votes)
+          .find(([regionId, count]) => count >= majority);
+        
+        if (winningEntry) {
+          const [winningRegionId, voteCount] = winningEntry;
+          const winningRegion = results.regions.find(r => r.region_id === winningRegionId);
+          
+          if (winningRegion && !selectedRegion) {
+            return (
+              <div className="info-box" style={{marginTop: '2rem', background: '#d4edda'}}>
+                <h3>🎉 {winningRegion.region_name} wins!</h3>
+                <p>{voteCount} out of {participantCount} voted for this destination.</p>
+                <button 
+                  className="btn btn-primary btn-large"
+                  onClick={() => handleSelectRegion(winningRegion)}
+                >
+                  🏙️ Explore Cities in {winningRegion.region_name}
+                </button>
+              </div>
+            );
+          }
+        }
+        return null;
+      })()}
 
 export default Results;
