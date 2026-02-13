@@ -1,99 +1,297 @@
 import React, { useState } from 'react';
 
-function CreateTrip({ onTripCreated, onBack }) {
-  const [formData, setFormData] = useState({
-    trip_name: '',
-    organizer_name: '',
-    trip_type: '',
-    duration_days: 7
-  });
-  
-  const handleSubmit = (e) => {
+function CreateTrip({ onTripCreated }) {
+  const [tripName, setTripName] = useState('');
+  const [organizerName, setOrganizerName] = useState('');
+  const [geographicScope, setGeographicScope] = useState('Anywhere');
+  const [environment, setEnvironment] = useState([]);
+  const [style, setStyle] = useState([]);
+  const [activities, setActivities] = useState([]);
+  const [budgetRange, setBudgetRange] = useState([50, 200]);
+
+  // NEW: 20 environment types
+  const environmentOptions = [
+    'beach', 'mountains', 'urban', 'countryside', 'nature',
+    'desert', 'tropical', 'islands', 'lakes', 'forests',
+    'cliffs', 'coastal', 'gardens', 'valleys', 'waterfalls',
+    'glaciers', 'fjords', 'historic-cities', 'modern-cities', 'small-towns'
+  ];
+
+  const styleOptions = [
+    'romantic', 'adventure', 'party', 'cultural', 'nature',
+    'luxury', 'budget-friendly', 'relaxing', 'active'
+  ];
+
+  // NEW: Categorized activities (60+ total)
+  const activityCategories = {
+    '🌊 Water': ['swimming', 'surfing', 'diving', 'snorkeling', 'sailing', 'kayaking', 'paddle-boarding', 'jet-skiing', 'rafting', 'fishing', 'whale-watching', 'boat-tours'],
+    '🎨 Cultural': ['museums', 'art-galleries', 'architecture', 'historical-sites', 'temples', 'churches', 'castles', 'palaces', 'cooking-classes', 'wine-tasting', 'tea-ceremonies', 'local-markets', 'festivals'],
+    '🏔️ Adventure': ['hiking', 'rock-climbing', 'zip-lining', 'bungee-jumping', 'skydiving', 'paragliding', 'canyoning', 'caving', 'mountain-biking', 'horseback-riding', 'safari', 'wildlife-watching', 'volcano-trekking', 'glacier-hiking', 'desert-tours'],
+    '❄️ Winter': ['skiing', 'snowboarding', 'ice-skating', 'sledding', 'snow-shoeing', 'husky-sledding'],
+    '🧘 Wellness': ['spa', 'yoga', 'meditation', 'hot-springs', 'massage', 'wellness-retreats'],
+    '🍽️ Food & Drink': ['fine-dining', 'street-food', 'food-tours', 'wine-tasting', 'brewery-tours', 'cooking-classes'],
+    '🎉 Nightlife': ['nightclubs', 'bars', 'live-music', 'theater', 'concerts', 'casinos', 'rooftop-bars'],
+    '🚶 Leisure': ['shopping', 'photography', 'cycling', 'walking-tours', 'golf', 'beach-clubs', 'parks', 'botanical-gardens', 'bird-watching', 'stargazing']
+  };
+
+  const [expandedCategories, setExpandedCategories] = useState({});
+
+  const toggleCategory = (category) => {
+    setExpandedCategories(prev => ({
+      ...prev,
+      [category]: !prev[category]
+    }));
+  };
+
+  const geographicOptions = [
+    'Anywhere', 'Europe', 'Asia', 'North America', 'South America', 'Africa', 'Oceania'
+  ];
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    fetch('https://triptips-backend.onrender.com/api/trip/create', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData)
-    })
-      .then(r => r.json())
-      .then(data => {
-        if (data.success) {
-          onTripCreated(data.trip_id, formData.trip_name);
-        } else {
-          alert('Error creating trip');
-        }
-      })
-      .catch(err => alert('Error: ' + err));
+
+    const tripData = {
+      trip_name: tripName,
+      organizer_name: organizerName,
+      geographic_scope: geographicScope,
+      organizer_preferences: {
+        environment,
+        style,
+        activities,
+        budget_range: budgetRange
+      }
+    };
+
+    try {
+      const response = await fetch('https://triptips-backend.onrender.com/api/trip', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(tripData)
+      });
+
+      if (!response.ok) throw new Error('Failed to create trip');
+
+      const data = await response.json();
+      onTripCreated(data.trip_id, tripName, organizerName);
+    } catch (error) {
+      console.error('Error creating trip:', error);
+      alert('Failed to create trip. Please try again.');
+    }
+  };
+
+  const toggleSelection = (array, setArray, value) => {
+    if (array.includes(value)) {
+      setArray(array.filter(item => item !== value));
+    } else {
+      setArray([...array, value]);
+    }
   };
 
   return (
-    <div className="create-trip-view">
-      <button className="btn btn-text" onClick={onBack}>← Back</button>
-      
-      <h2>Create a New Trip</h2>
-      <p className="help-text">Set up your trip and we'll help you find the perfect destination</p>
-
-      <form onSubmit={handleSubmit} className="create-trip-form">
-        <div className="form-group">
-          <label>Trip Name</label>
-          <input 
+    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
+      <h1>Create a New Trip</h1>
+      <form onSubmit={handleSubmit}>
+        {/* Trip Name */}
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+            Trip Name
+          </label>
+          <input
             type="text"
-            className="input"
-            placeholder="e.g., Summer Europe Trip 2026"
-            value={formData.trip_name}
-            onChange={(e) => setFormData({ ...formData, trip_name: e.target.value })}
+            value={tripName}
+            onChange={(e) => setTripName(e.target.value)}
+            placeholder="e.g., Summer Europe Adventure"
             required
+            style={{ width: '100%', padding: '10px', fontSize: '16px' }}
           />
         </div>
 
-        <div className="form-group">
-          <label>Your Name (Organizer)</label>
-          <input 
+        {/* Organizer Name */}
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+            Your Name
+          </label>
+          <input
             type="text"
-            className="input"
-            placeholder="Enter your name"
-            value={formData.organizer_name}
-            onChange={(e) => setFormData({ ...formData, organizer_name: e.target.value })}
+            value={organizerName}
+            onChange={(e) => setOrganizerName(e.target.value)}
+            placeholder="Your name"
             required
+            style={{ width: '100%', padding: '10px', fontSize: '16px' }}
           />
         </div>
 
-        <div className="form-group">
-          <label>Trip Type</label>
-          <select 
-            className="input"
-            value={formData.trip_type}
-            onChange={(e) => setFormData({ ...formData, trip_type: e.target.value })}
-            required
+        {/* Geographic Scope */}
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+            Where do you want to go?
+          </label>
+          <select
+            value={geographicScope}
+            onChange={(e) => setGeographicScope(e.target.value)}
+            style={{ width: '100%', padding: '10px', fontSize: '16px' }}
           >
-            <option value="">Select trip type</option>
-            <option value="friends_vacation">Friends Vacation</option>
-            <option value="couple_trip">Couple's Trip</option>
-            <option value="family_with_kids">Family with Kids</option>
-            <option value="family_without_kids">Family without Kids</option>
-            <option value="corporate">Corporate / Team Building</option>
+            {geographicOptions.map(option => (
+              <option key={option} value={option}>{option}</option>
+            ))}
           </select>
         </div>
 
-        <div className="form-group">
-          <label>Trip Duration</label>
-          <div className="duration-options">
-            {[3, 5, 7, 10, 14].map(days => (
+        {/* Environment */}
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>
+            Environment (select all that interest you)
+          </label>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+            {environmentOptions.map(env => (
               <button
-                key={days}
+                key={env}
                 type="button"
-                className={`option-btn ${formData.duration_days === days ? 'selected' : ''}`}
-                onClick={() => setFormData({ ...formData, duration_days: days })}
+                onClick={() => toggleSelection(environment, setEnvironment, env)}
+                style={{
+                  padding: '8px 16px',
+                  border: '2px solid #ccc',
+                  borderRadius: '20px',
+                  background: environment.includes(env) ? '#4CAF50' : 'white',
+                  color: environment.includes(env) ? 'white' : 'black',
+                  cursor: 'pointer',
+                  fontSize: '14px'
+                }}
               >
-                {days} days
+                {env}
               </button>
             ))}
           </div>
         </div>
 
-        <button type="submit" className="btn btn-primary btn-large">
-          Create Trip →
+        {/* Style */}
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>
+            Travel Style
+          </label>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+            {styleOptions.map(s => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => toggleSelection(style, setStyle, s)}
+                style={{
+                  padding: '8px 16px',
+                  border: '2px solid #ccc',
+                  borderRadius: '20px',
+                  background: style.includes(s) ? '#2196F3' : 'white',
+                  color: style.includes(s) ? 'white' : 'black',
+                  cursor: 'pointer',
+                  fontSize: '14px'
+                }}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Activities - Categorized */}
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>
+            Activities (select what you enjoy)
+          </label>
+          {Object.entries(activityCategories).map(([category, categoryActivities]) => (
+            <div key={category} style={{ marginBottom: '15px', border: '1px solid #ddd', borderRadius: '8px', padding: '10px' }}>
+              <button
+                type="button"
+                onClick={() => toggleCategory(category)}
+                style={{
+                  width: '100%',
+                  textAlign: 'left',
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  padding: '5px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}
+              >
+                <span>{category}</span>
+                <span>{expandedCategories[category] ? '▼' : '▶'}</span>
+              </button>
+              {expandedCategories[category] && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '10px' }}>
+                  {categoryActivities.map(activity => (
+                    <button
+                      key={activity}
+                      type="button"
+                      onClick={() => toggleSelection(activities, setActivities, activity)}
+                      style={{
+                        padding: '6px 12px',
+                        border: '1px solid #ccc',
+                        borderRadius: '15px',
+                        background: activities.includes(activity) ? '#FF9800' : 'white',
+                        color: activities.includes(activity) ? 'white' : 'black',
+                        cursor: 'pointer',
+                        fontSize: '13px'
+                      }}
+                    >
+                      {activity}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Budget Range */}
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>
+            Daily Budget Range: ${budgetRange[0]} - ${budgetRange[1]}
+          </label>
+          <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+            <div style={{ flex: 1 }}>
+              <label style={{ fontSize: '14px' }}>Min: ${budgetRange[0]}</label>
+              <input
+                type="range"
+                min="15"
+                max="500"
+                step="5"
+                value={budgetRange[0]}
+                onChange={(e) => setBudgetRange([parseInt(e.target.value), budgetRange[1]])}
+                style={{ width: '100%' }}
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={{ fontSize: '14px' }}>Max: ${budgetRange[1]}</label>
+              <input
+                type="range"
+                min="15"
+                max="500"
+                step="5"
+                value={budgetRange[1]}
+                onChange={(e) => setBudgetRange([budgetRange[0], parseInt(e.target.value)])}
+                style={{ width: '100%' }}
+              />
+            </div>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          style={{
+            width: '100%',
+            padding: '15px',
+            fontSize: '18px',
+            background: '#4CAF50',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            fontWeight: 'bold'
+          }}
+        >
+          Create Trip
         </button>
       </form>
     </div>
