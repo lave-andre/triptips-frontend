@@ -18,7 +18,7 @@ function CreateTrip({ onTripCreated }) {
     const tripData = {
       trip_name: tripName,
       organizer_name: organizerName,
-      geographic_scope: geographicScope
+      geographic_scope: geographicScope,
       trip_type: tripType === 'family' ? `family_${familyAge}` : 
                  tripType === 'corporate' ? `corporate_${corporateType}` : 
                  tripType
