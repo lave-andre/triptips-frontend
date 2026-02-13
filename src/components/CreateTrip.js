@@ -4,6 +4,7 @@ function CreateTrip({ onTripCreated }) {
   const [tripName, setTripName] = useState('');
   const [organizerName, setOrganizerName] = useState('');
   const [geographicScope, setGeographicScope] = useState('Anywhere');
+  const [duration, setDuration] = useState(7);
   const [tripType, setTripType] = useState('friends_adventure');
   const [familyAge, setFamilyAge] = useState('kids'); // for family trips
   const [corporateType, setCorporateType] = useState('teambuilding'); // for corporate
@@ -19,9 +20,8 @@ function CreateTrip({ onTripCreated }) {
       trip_name: tripName,
       organizer_name: organizerName,
       geographic_scope: geographicScope,
-      trip_type: tripType === 'family' ? `family_${familyAge}` : 
-                 tripType === 'corporate' ? `corporate_${corporateType}` : 
-                 tripType
+      duration_days: duration,
+      trip_type: tripType
     };
 
     try {
@@ -121,6 +121,15 @@ function CreateTrip({ onTripCreated }) {
           </p>
         </div>
 
+        {/* Duration */}      
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Duration (days) *</label>
+          <input type="number" min="1" max="30" value={duration} 
+            onChange={(e) => setDuration(parseInt(e.target.value))}
+            style={{ width: '100%', padding: '12px', fontSize: '16px', border: '2px solid #ddd', borderRadius: '8px' }} />
+        </div>
+
+        {/* Trip Type */}         
         <div style={{ marginBottom: '20px' }}>
           <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>
             Trip Type *
