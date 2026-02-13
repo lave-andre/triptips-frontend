@@ -78,20 +78,12 @@ function JoinTrip({ tripId, tripData, onPreferencesSubmitted }) {
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
-      <div style={{ 
-        background: '#f0f8ff', 
-        padding: '15px', 
-        borderRadius: '8px', 
-        marginBottom: '20px',
-        border: '2px solid #2196F3'
-      }}>
-        <h2 style={{ margin: '0 0 10px 0' }}>Trip: {tripData?.trip_name || 'Loading...'}</h2>
-        <p style={{ margin: '5px 0' }}>
-          <strong>Organized by:</strong> {tripData?.organizer_name || 'Loading...'}
-        </p>
-        <p style={{ margin: '5px 0' }}>
-          <strong>Destination:</strong> {tripData?.geographic_scope || 'Anywhere'}
-        </p>
+      <div style={{ background: '#f0f8ff', padding: '15px', borderRadius: '8px', marginBottom: '20px', border: '2px solid #2196F3' }}>
+        <h2 style={{ margin: '0 0 10px 0' }}>✈️ {tripData?.trip_name || 'Loading...'}</h2>
+        <p style={{ margin: '5px 0' }}><strong>Organized by:</strong> {tripData?.organizer_name}</p>
+        <p style={{ margin: '5px 0' }}><strong>Type:</strong> {tripData?.trip_type || 'N/A'}</p>
+        <p style={{ margin: '5px 0' }}><strong>Duration:</strong> {tripData?.duration_days || 'N/A'} days</p>
+        <p style={{ margin: '5px 0' }}><strong>Looking in:</strong> {tripData?.geographic_scope || 'Anywhere'}</p>
       </div>
 
       <h1>Submit Your Preferences</h1>
