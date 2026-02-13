@@ -4,44 +4,9 @@ function CreateTrip({ onTripCreated }) {
   const [tripName, setTripName] = useState('');
   const [organizerName, setOrganizerName] = useState('');
   const [geographicScope, setGeographicScope] = useState('Anywhere');
-  const [environment, setEnvironment] = useState([]);
-  const [style, setStyle] = useState([]);
-  const [activities, setActivities] = useState([]);
-  const [budgetRange, setBudgetRange] = useState([50, 200]);
-
-  // NEW: 20 environment types
-  const environmentOptions = [
-    'beach', 'mountains', 'urban', 'countryside', 'nature',
-    'desert', 'tropical', 'islands', 'lakes', 'forests',
-    'cliffs', 'coastal', 'gardens', 'valleys', 'waterfalls',
-    'glaciers', 'fjords', 'historic-cities', 'modern-cities', 'small-towns'
-  ];
-
-  const styleOptions = [
-    'romantic', 'adventure', 'party', 'cultural', 'nature',
-    'luxury', 'budget-friendly', 'relaxing', 'active'
-  ];
-
-  // NEW: Categorized activities (60+ total)
-  const activityCategories = {
-    '🌊 Water': ['swimming', 'surfing', 'diving', 'snorkeling', 'sailing', 'kayaking', 'paddle-boarding', 'jet-skiing', 'rafting', 'fishing', 'whale-watching', 'boat-tours'],
-    '🎨 Cultural': ['museums', 'art-galleries', 'architecture', 'historical-sites', 'temples', 'churches', 'castles', 'palaces', 'cooking-classes', 'wine-tasting', 'tea-ceremonies', 'local-markets', 'festivals'],
-    '🏔️ Adventure': ['hiking', 'rock-climbing', 'zip-lining', 'bungee-jumping', 'skydiving', 'paragliding', 'canyoning', 'caving', 'mountain-biking', 'horseback-riding', 'safari', 'wildlife-watching', 'volcano-trekking', 'glacier-hiking', 'desert-tours'],
-    '❄️ Winter': ['skiing', 'snowboarding', 'ice-skating', 'sledding', 'snow-shoeing', 'husky-sledding'],
-    '🧘 Wellness': ['spa', 'yoga', 'meditation', 'hot-springs', 'massage', 'wellness-retreats'],
-    '🍽️ Food & Drink': ['fine-dining', 'street-food', 'food-tours', 'wine-tasting', 'brewery-tours', 'cooking-classes'],
-    '🎉 Nightlife': ['nightclubs', 'bars', 'live-music', 'theater', 'concerts', 'casinos', 'rooftop-bars'],
-    '🚶 Leisure': ['shopping', 'photography', 'cycling', 'walking-tours', 'golf', 'beach-clubs', 'parks', 'botanical-gardens', 'bird-watching', 'stargazing']
-  };
-
-  const [expandedCategories, setExpandedCategories] = useState({});
-
-  const toggleCategory = (category) => {
-    setExpandedCategories(prev => ({
-      ...prev,
-      [category]: !prev[category]
-    }));
-  };
+  const [tripType, setTripType] = useState('friends_adventure');
+  const [familyAge, setFamilyAge] = useState('kids'); // for family trips
+  const [corporateType, setCorporateType] = useState('teambuilding'); // for corporate
 
   const geographicOptions = [
     'Anywhere', 'Europe', 'Asia', 'North America', 'South America', 'Africa', 'Oceania'
@@ -53,13 +18,10 @@ function CreateTrip({ onTripCreated }) {
     const tripData = {
       trip_name: tripName,
       organizer_name: organizerName,
-      geographic_scope: geographicScope,
-      organizer_preferences: {
-        environment,
-        style,
-        activities,
-        budget_range: budgetRange
-      }
+      geographic_scope: geographicScope
+      trip_type: tripType === 'family' ? `family_${familyAge}` : 
+                 tripType === 'corporate' ? `corporate_${corporateType}` : 
+                 tripType
     };
 
     try {
@@ -69,32 +31,32 @@ function CreateTrip({ onTripCreated }) {
         body: JSON.stringify(tripData)
       });
 
-      if (!response.ok) throw new Error('Failed to create trip');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create trip');
+      }
 
       const data = await response.json();
       onTripCreated(data.trip_id, tripName, organizerName);
     } catch (error) {
       console.error('Error creating trip:', error);
-      alert('Failed to create trip. Please try again.');
-    }
-  };
-
-  const toggleSelection = (array, setArray, value) => {
-    if (array.includes(value)) {
-      setArray(array.filter(item => item !== value));
-    } else {
-      setArray([...array, value]);
+      alert(`Failed to create trip: ${error.message}`);
     }
   };
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
+    <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px' }}>
       <h1>Create a New Trip</h1>
+      <p style={{ color: '#666', marginBottom: '30px' }}>
+        Create a trip and share the link with your group. Everyone will submit their preferences, 
+        and we'll find the perfect destination for you!
+      </p>
+
       <form onSubmit={handleSubmit}>
         {/* Trip Name */}
         <div style={{ marginBottom: '20px' }}>
           <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
-            Trip Name
+            Trip Name *
           </label>
           <input
             type="text"
@@ -102,14 +64,20 @@ function CreateTrip({ onTripCreated }) {
             onChange={(e) => setTripName(e.target.value)}
             placeholder="e.g., Summer Europe Adventure"
             required
-            style={{ width: '100%', padding: '10px', fontSize: '16px' }}
+            style={{ 
+              width: '100%', 
+              padding: '12px', 
+              fontSize: '16px',
+              border: '2px solid #ddd',
+              borderRadius: '8px'
+            }}
           />
         </div>
 
         {/* Organizer Name */}
         <div style={{ marginBottom: '20px' }}>
           <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
-            Your Name
+            Your Name *
           </label>
           <input
             type="text"
@@ -117,166 +85,76 @@ function CreateTrip({ onTripCreated }) {
             onChange={(e) => setOrganizerName(e.target.value)}
             placeholder="Your name"
             required
-            style={{ width: '100%', padding: '10px', fontSize: '16px' }}
+            style={{ 
+              width: '100%', 
+              padding: '12px', 
+              fontSize: '16px',
+              border: '2px solid #ddd',
+              borderRadius: '8px'
+            }}
           />
         </div>
 
         {/* Geographic Scope */}
-        <div style={{ marginBottom: '20px' }}>
+        <div style={{ marginBottom: '30px' }}>
           <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
-            Where do you want to go?
+            Where do you want to go? *
           </label>
           <select
             value={geographicScope}
             onChange={(e) => setGeographicScope(e.target.value)}
-            style={{ width: '100%', padding: '10px', fontSize: '16px' }}
+            style={{ 
+              width: '100%', 
+              padding: '12px', 
+              fontSize: '16px',
+              border: '2px solid #ddd',
+              borderRadius: '8px',
+              backgroundColor: 'white'
+            }}
           >
             {geographicOptions.map(option => (
               <option key={option} value={option}>{option}</option>
             ))}
           </select>
+          <p style={{ fontSize: '14px', color: '#666', marginTop: '5px' }}>
+            You can narrow down the search to a specific continent or search anywhere
+          </p>
         </div>
 
-        {/* Environment */}
         <div style={{ marginBottom: '20px' }}>
           <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>
-            Environment (select all that interest you)
+            Trip Type *
           </label>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-            {environmentOptions.map(env => (
-              <button
-                key={env}
-                type="button"
-                onClick={() => toggleSelection(environment, setEnvironment, env)}
-                style={{
-                  padding: '8px 16px',
-                  border: '2px solid #ccc',
-                  borderRadius: '20px',
-                  background: environment.includes(env) ? '#4CAF50' : 'white',
-                  color: environment.includes(env) ? 'white' : 'black',
-                  cursor: 'pointer',
-                  fontSize: '14px'
-                }}
-              >
-                {env}
-              </button>
-            ))}
-          </div>
+          <select value={tripType} onChange={(e) => setTripType(e.target.value)} 
+            style={{ width: '100%', padding: '12px', fontSize: '16px', border: '2px solid #ddd', borderRadius: '8px' }}>
+            <option value="couple_romantic">Couple - Romantic</option>
+            <option value="couple_adventure">Couple - Adventure</option>
+            <option value="friends_party">Friends - Party</option>
+            <option value="friends_adventure">Friends - Adventure</option>
+            <option value="family">Family</option>
+            <option value="corporate">Corporate</option>
+            <option value="solo_backpacker">Solo - Backpacker</option>
+            <option value="solo_luxury">Solo - Luxury</option>
+          </select>
+          
+          {tripType === 'family' && (
+            <select value={familyAge} onChange={(e) => setFamilyAge(e.target.value)}
+              style={{ width: '100%', padding: '12px', fontSize: '16px', marginTop: '10px' }}>
+              <option value="young_kids">Young Kids (0-5)</option>
+              <option value="kids">Kids (6-12)</option>
+              <option value="teens">Teens (13-17)</option>
+            </select>
+          )}
+          
+          {tripType === 'corporate' && (
+            <select value={corporateType} onChange={(e) => setCorporateType(e.target.value)}
+              style={{ width: '100%', padding: '12px', fontSize: '16px', marginTop: '10px' }}>
+              <option value="formal">Formal Meeting</option>
+              <option value="teambuilding">Team Building</option>
+            </select>
+          )}
         </div>
-
-        {/* Style */}
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>
-            Travel Style
-          </label>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-            {styleOptions.map(s => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => toggleSelection(style, setStyle, s)}
-                style={{
-                  padding: '8px 16px',
-                  border: '2px solid #ccc',
-                  borderRadius: '20px',
-                  background: style.includes(s) ? '#2196F3' : 'white',
-                  color: style.includes(s) ? 'white' : 'black',
-                  cursor: 'pointer',
-                  fontSize: '14px'
-                }}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Activities - Categorized */}
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>
-            Activities (select what you enjoy)
-          </label>
-          {Object.entries(activityCategories).map(([category, categoryActivities]) => (
-            <div key={category} style={{ marginBottom: '15px', border: '1px solid #ddd', borderRadius: '8px', padding: '10px' }}>
-              <button
-                type="button"
-                onClick={() => toggleCategory(category)}
-                style={{
-                  width: '100%',
-                  textAlign: 'left',
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '16px',
-                  fontWeight: 'bold',
-                  cursor: 'pointer',
-                  padding: '5px',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}
-              >
-                <span>{category}</span>
-                <span>{expandedCategories[category] ? '▼' : '▶'}</span>
-              </button>
-              {expandedCategories[category] && (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '10px' }}>
-                  {categoryActivities.map(activity => (
-                    <button
-                      key={activity}
-                      type="button"
-                      onClick={() => toggleSelection(activities, setActivities, activity)}
-                      style={{
-                        padding: '6px 12px',
-                        border: '1px solid #ccc',
-                        borderRadius: '15px',
-                        background: activities.includes(activity) ? '#FF9800' : 'white',
-                        color: activities.includes(activity) ? 'white' : 'black',
-                        cursor: 'pointer',
-                        fontSize: '13px'
-                      }}
-                    >
-                      {activity}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Budget Range */}
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>
-            Daily Budget Range: ${budgetRange[0]} - ${budgetRange[1]}
-          </label>
-          <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-            <div style={{ flex: 1 }}>
-              <label style={{ fontSize: '14px' }}>Min: ${budgetRange[0]}</label>
-              <input
-                type="range"
-                min="15"
-                max="500"
-                step="5"
-                value={budgetRange[0]}
-                onChange={(e) => setBudgetRange([parseInt(e.target.value), budgetRange[1]])}
-                style={{ width: '100%' }}
-              />
-            </div>
-            <div style={{ flex: 1 }}>
-              <label style={{ fontSize: '14px' }}>Max: ${budgetRange[1]}</label>
-              <input
-                type="range"
-                min="15"
-                max="500"
-                step="5"
-                value={budgetRange[1]}
-                onChange={(e) => setBudgetRange([budgetRange[0], parseInt(e.target.value)])}
-                style={{ width: '100%' }}
-              />
-            </div>
-          </div>
-        </div>
-
+              
         <button
           type="submit"
           style={{
@@ -288,12 +166,31 @@ function CreateTrip({ onTripCreated }) {
             border: 'none',
             borderRadius: '8px',
             cursor: 'pointer',
-            fontWeight: 'bold'
+            fontWeight: 'bold',
+            transition: 'background 0.3s'
           }}
+          onMouseEnter={(e) => e.target.style.background = '#45a049'}
+          onMouseLeave={(e) => e.target.style.background = '#4CAF50'}
         >
-          Create Trip
+          Create Trip & Get Share Link
         </button>
       </form>
+
+      <div style={{ 
+        marginTop: '30px', 
+        padding: '15px', 
+        background: '#f0f8ff', 
+        borderRadius: '8px',
+        border: '1px solid #2196F3'
+      }}>
+        <h3 style={{ marginTop: 0 }}>📝 Next Steps:</h3>
+        <ol style={{ marginBottom: 0, paddingLeft: '20px' }}>
+          <li>Create your trip</li>
+          <li>Share the link with your group</li>
+          <li>Everyone submits their preferences</li>
+          <li>Click "Calculate Matches" to find your perfect destination!</li>
+        </ol>
+      </div>
     </div>
   );
 }
