@@ -542,11 +542,23 @@ function PreferencesForm({ tripId, tripData, isOrganizer, onSubmitted, onBack, s
             <p className="help-text">Expand categories and select activities</p>
             {Object.entries(activityCategories).map(([category, acts]) => (
               <div key={category} style={{marginBottom: '15px', border: '1px solid #ddd', padding: '10px', borderRadius: '8px'}}>
-                <button type="button" onClick={() => toggleCategory(category, acts)}
-                  style={{width: '100%', textAlign: 'left', background: 'none', border: 'none', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', padding: '5px', display: 'flex', justifyContent: 'space-between'}}>
-                  <span>{category}</span>
-                  <span>{expandedCategories[category] ? '▼' : '▶'}</span>
-                </button>
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                  <button type="button" onClick={() => toggleCategory(category)}
+                    style={{flex: 1, textAlign: 'left', background: 'none', border: 'none', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', padding: '5px', display: 'flex', justifyContent: 'space-between'}}>
+                    <span>{category}</span>
+                    <span>{expandedCategories[category] ? '▼' : '▶'}</span>
+                  </button>
+                  <button type="button" onClick={() => {
+                    const allSelected = acts.every(a => formData.activities.includes(a));
+                    if (allSelected) {
+                      setFormData({...formData, activities: formData.activities.filter(a => !acts.includes(a))});
+                    } else {
+                      setFormData({...formData, activities: [...new Set([...formData.activities, ...acts])]});
+                    }
+                  }} style={{fontSize: '12px', padding: '4px 8px', marginLeft: '10px', background: '#2196F3', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'}}>
+                    {acts.every(a => formData.activities.includes(a)) ? 'Deselect All' : 'Select All'}
+                  </button>
+                </div>
                 {expandedCategories[category] && (
                   <div style={{display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '10px'}}>
                     {acts.map(activity => (
