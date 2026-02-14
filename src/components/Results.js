@@ -6,17 +6,17 @@ function Results({ tripId, results, tripData, onBack, onRecalculate }) {
   const [votes, setVotes] = useState({});
   const [participantCount, setParticipantCount] = useState(0);
     
-    // Fetch current participant count
-      useEffect(() => {
-        fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}`)
-          .then(r => r.json())
-          .then(data => {
-            if (data.success && data.trip.participants) {
-              setParticipantCount(data.trip.participants.length);
-            }
-          })
-          .catch(err => console.error('Error fetching participant count:', err));
-      }, [tripId]);
+  // Fetch current participant count
+  useEffect(() => {
+    fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success && data.trip.participants) {
+          setParticipantCount(data.trip.participants.length);
+        }
+      })
+      .catch(err => console.error('Error fetching participant count:', err));
+  }, [tripId]);
   
   const handleVote = (regionId) => {
     const userName = prompt("Enter your name to vote:");
@@ -35,17 +35,14 @@ function Results({ tripId, results, tripData, onBack, onRecalculate }) {
         if (data.success) {
           setVotes(data.vote_counts);
           
-          // Check if this vote creates a majority
           const totalVotes = data.total_votes || 0;
           const thisRegionVotes = data.vote_counts[regionId] || 0;
           const majority = Math.ceil(participantCount / 2);
           
           if (thisRegionVotes >= majority) {
-            // Find the region object
             const region = results.regions?.find(r => r.region_id === regionId);
             if (region) {
               alert(`🎉 Majority reached! ${region.region_name} wins with ${thisRegionVotes} votes!`);
-              // Auto-select this region and show cities
               handleSelectRegion(region);
             }
           } else {
@@ -58,7 +55,6 @@ function Results({ tripId, results, tripData, onBack, onRecalculate }) {
   const handleSelectRegion = (region) => {
     setSelectedRegion(region);
     
-    // Fetch cities for this region
     fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}/cities`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -141,63 +137,65 @@ function Results({ tripId, results, tripData, onBack, onRecalculate }) {
                 )}
               </div>
             ))}
-            
-              return (
-                <div className="results-view">
-                  <button className="btn btn-text" onClick={onBack}>← Back to Home</button>
-            
-                  <h2>🎯 Your Top Destination Matches{tripData?.trip_name ? ` for "${tripData.trip_name}"` : ''}!</h2>
-            
-                  <div className="info-box" style={{marginBottom: '1rem'}}>
-                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                      <div>
-                        <strong>👥 {participantCount} participant{participantCount !== 1 ? 's' : ''} submitted preferences</strong>
-                        <p style={{margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: '#666'}}>
-                          More people joined? Recalculate to include their preferences.
-                        </p>
-                      </div>
-                      <button 
-                          className="btn btn-primary"
-                          onClick={(e) => {
-                            if (!window.confirm('Recalculate with latest preferences?')) return;
-                            
-                            // Show loading state
-                            e.target.disabled = true;
-                            e.target.textContent = '⏳ Calculating...';
-                            
-                            fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}/calculate`, {
-                              method: 'POST'
-                            })
-                              .then(r => r.json())
-                              .then(data => {
-                                if (data.success) {
-                                  // Fetch updated participant count
-                                  fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}`)
-                                    .then(r2 => r2.json())
-                                    .then(tripData => {
-                                      if (tripData.success && tripData.trip.participants) {
-                                        setParticipantCount(tripData.trip.participants.length);
-                                      }
-                                    });
-                                  
-                                  // Update results through callback
-                                  onRecalculate(data.results);
-                                  alert('✅ Results updated with ' + participantCount + ' participants!');
-                                } else {
-                                  alert('Error recalculating: ' + data.error);
-                                }
-                              })
-                              .catch(err => alert('Error: ' + err))
-                              .finally(() => {
-                                e.target.disabled = false;
-                                e.target.textContent = '🔄 Recalculate';
-                              });
-                          }}
-                        >
-                          🔄 Recalculate
-                        </button>
-                    </div>
-                  </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="results-view">
+      <button className="btn btn-text" onClick={onBack}>← Back to Home</button>
+
+      <h2>🎯 Your Top Destination Matches{tripData?.trip_name ? ` for "${tripData.trip_name}"` : ''}!</h2>
+
+      <div className="info-box" style={{marginBottom: '1rem'}}>
+        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+          <div>
+            <strong>👥 {participantCount} participant{participantCount !== 1 ? 's' : ''} submitted preferences</strong>
+            <p style={{margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: '#666'}}>
+              More people joined? Recalculate to include their preferences.
+            </p>
+          </div>
+          <button 
+            className="btn btn-primary"
+            onClick={(e) => {
+              if (!window.confirm('Recalculate with latest preferences?')) return;
+              
+              e.target.disabled = true;
+              e.target.textContent = '⏳ Calculating...';
+              
+              fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}/calculate`, {
+                method: 'POST'
+              })
+                .then(r => r.json())
+                .then(data => {
+                  if (data.success) {
+                    fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}`)
+                      .then(r2 => r2.json())
+                      .then(tripData => {
+                        if (tripData.success && tripData.trip.participants) {
+                          setParticipantCount(tripData.trip.participants.length);
+                        }
+                      });
+                    
+                    onRecalculate(data.results);
+                    alert('✅ Results updated with ' + participantCount + ' participants!');
+                  } else {
+                    alert('Error recalculating: ' + data.error);
+                  }
+                })
+                .catch(err => alert('Error: ' + err))
+                .finally(() => {
+                  e.target.disabled = false;
+                  e.target.textContent = '🔄 Recalculate';
+                });
+            }}
+          >
+            🔄 Recalculate
+          </button>
+        </div>
+      </div>
 
       {results.geographic_analysis && results.geographic_analysis.is_split && (
         <div className="info-box warning">
