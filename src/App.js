@@ -562,13 +562,4 @@ function PreferencesForm({ tripId, tripData, isOrganizer, onSubmitted, onBack, s
 		  </div>
 		)}
 
-      <div className="form-navigation">
-        {step > 1 && <button className="btn btn-secondary" onClick={() => setStep(step - 1)}>← Back</button>}
-        {step < 4 && <button className="btn btn-primary" onClick={() => setStep(step + 1)} disabled={step === 1 && !formData.name}>Next →</button>}
-        {step === 4 && <button className="btn btn-primary" onClick={handleSubmit}>✅ Submit</button>}
-      </div>
-    </div>
-  );
-}
-
 export default App;
