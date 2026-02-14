@@ -308,35 +308,35 @@ function Results({ tripId, results, tripData, onBack, onRecalculate }) {
         ))}
       </div>
 
-      {Object.keys(votes).length > 0 && (
-  <div className="voting-summary">
-    <h3>🗳️ Voting Results</h3>
-    <p className="help-text">
-      {Math.ceil(participantCount / 2)} votes needed for majority
-    </p>
-    {Object.entries(votes)
-      .sort((a, b) => b[1] - a[1])
-      .map(([regionId, count]) => {
-        const region = results.regions.find(r => r.region_id === regionId);
-        const majority = Math.ceil(participantCount / 2);
-        const isMajority = count >= majority;
-        
-        return region ? (
-          <div 
-            key={regionId} 
-            className="vote-result"
-            style={{
-              background: isMajority ? '#d4edda' : 'white',
-              border: isMajority ? '2px solid #28a745' : '1px solid #e0e0e0'
-            }}
-          >
-            <strong>{region.region_name}</strong>: {count} vote{count > 1 ? 's' : ''}
-            {isMajority && ' 🏆 WINNER!'}
-          </div>
-        ) : null;
-      })}
-  </div>
-)}
+ {Object.keys(votes).length > 0 && (
+        <div className="voting-summary">
+          <h3>🗳️ Voting Results</h3>
+          <p className="help-text">
+            {Math.ceil(participantCount / 2)} votes needed for majority
+          </p>
+          {Object.entries(votes)
+            .sort((a, b) => b[1] - a[1])
+            .map(([regionId, count]) => {
+              const region = results.regions.find(r => r.region_id === regionId);
+              const majority = Math.ceil(participantCount / 2);
+              const isMajority = count >= majority;
+              
+              return region ? (
+                <div 
+                  key={regionId} 
+                  className="vote-result"
+                  style={{
+                    background: isMajority ? '#d4edda' : 'white',
+                    border: isMajority ? '2px solid #28a745' : '1px solid #e0e0e0'
+                  }}
+                >
+                  <strong>{region.region_name}</strong>: {count} vote{count > 1 ? 's' : ''}
+                  {isMajority && ' 🏆 WINNER!'}
+                </div>
+              ) : null;
+            })}
+        </div>
+      )}
     </div>
   );
 }
