@@ -431,16 +431,13 @@ function PreferencesForm({ tripId, tripData, isOrganizer, onSubmitted, onBack, s
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: isOrganizer ? (tripData?.organizer_name || '') : '',
-    geographic_preference: '',
     environment: [],
     style: [],
     activities: [],
-    budget_range: [50, 150],
-    climate: ''
+    budget_range: [50, 200]
   });
 
   const handleSubmit = () => {
-    // Submit to API
     fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}/preferences`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -471,185 +468,93 @@ function PreferencesForm({ tripId, tripData, isOrganizer, onSubmitted, onBack, s
     <div className="preferences-form">
       <div className="form-header">
         <h2>Share Your Preferences</h2>
-        <p>Step {step} of 6</p>
+        <p>Step {step} of 4</p>
       </div>
 
       <div className="form-content">
-
-	  {step === 1 && (
-  		<div className="form-step">
-		    <h3>What's your name?</h3>
-		    <input 
-		      type="text"
-		      className="input-large"
-		      placeholder="Enter your name"
-		      value={formData.name}
-		      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-		      disabled={isOrganizer}
-		    />
-    		{isOrganizer && (
-      			<p className="help-text">You're the organizer of this trip</p>
-    		)}
-  		</div>
-	  )}
-
-        {step === 2 && (
+        {step === 1 && (
           <div className="form-step">
-            <h3>Where would you like to go?</h3>
-            <p className="help-text">Pick your preferred continent/region</p>
-            <div className="options-grid">
-              {['Europe', 'Asia', 'Africa', 'North America', 'South America', 'Oceania', 'Anywhere'].map(geo => (
-                <button
-                  key={geo}
-                  className={`option-btn ${formData.geographic_preference === geo ? 'selected' : ''}`}
-                  onClick={() => setFormData({ ...formData, geographic_preference: geo })}
-                >
-                  {geo}
-                </button>
-              ))}
-            </div>
+            <h3>What's your name?</h3>
+            <input 
+              type="text"
+              className="input-large"
+              placeholder="Enter your name"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              disabled={isOrganizer}
+            />
+            {isOrganizer && <p className="help-text">You're the organizer</p>}
           </div>
         )}
 
-        {step === 3 && (
+        {step === 2 && (
           <div className="form-step">
             <h3>What environments appeal to you?</h3>
-            <p className="help-text">Pick your top 2-3</p>
+            <p className="help-text">Select all that interest you</p>
             <div className="options-grid">
-              {['beach', 'mountains', 'urban', 'countryside', 'nature', 'desert', 'tropical'].map(env => (
+              {['beach', 'mountains', 'urban', 'countryside', 'nature', 'desert', 'tropical', 'islands', 'lakes', 'forests', 'cliffs', 'coastal', 'gardens', 'valleys', 'waterfalls', 'glaciers', 'fjords', 'historic-cities', 'modern-cities', 'small-towns'].map(env => (
                 <button
                   key={env}
                   className={`option-btn ${formData.environment.includes(env) ? 'selected' : ''}`}
                   onClick={() => toggleArrayItem('environment', env)}
-                  disabled={formData.environment.length >= 3 && !formData.environment.includes(env)}
                 >
                   {env}
                 </button>
               ))}
             </div>
-            <p className="selection-count">{formData.environment.length} / 3 selected</p>
+            <p className="selection-count">{formData.environment.length} selected</p>
           </div>
         )}
 
-        {step === 4 && (
+        {step === 3 && (
           <div className="form-step">
-            <h3>What's your trip style?</h3>
-            <p className="help-text">Pick your top 2</p>
+            <h3>What's your travel style?</h3>
             <div className="options-grid">
-              {['relaxing', 'adventure', 'cultural', 'party', 'culinary', 'wellness', 'luxury', 'budget-friendly'].map(style => (
+              {['romantic', 'adventure', 'party', 'cultural', 'nature', 'luxury', 'budget-friendly', 'relaxing', 'active'].map(style => (
                 <button
                   key={style}
                   className={`option-btn ${formData.style.includes(style) ? 'selected' : ''}`}
                   onClick={() => toggleArrayItem('style', style)}
-                  disabled={formData.style.length >= 2 && !formData.style.includes(style)}
                 >
                   {style}
                 </button>
               ))}
             </div>
-            <p className="selection-count">{formData.style.length} / 2 selected</p>
           </div>
         )}
 
-        {step === 5 && (
+        {step === 4 && (
           <div className="form-step">
             <h3>What activities excite you?</h3>
-            <p className="help-text">Pick your top 3-5</p>
-            <div className="options-grid">
-              {['swimming', 'hiking', 'museums', 'nightlife', 'surfing', 'skiing', 'wine_tasting', 'shopping', 'diving', 'cycling', 'photography', 'wildlife', 'restaurants'].map(activity => (
+            <p className="help-text">Select what you enjoy</p>
+            <div className="options-grid" style={{maxHeight: '400px', overflowY: 'auto'}}>
+              {['swimming', 'surfing', 'diving', 'snorkeling', 'sailing', 'kayaking', 'hiking', 'rock-climbing', 'skiing', 'snowboarding', 'museums', 'art-galleries', 'temples', 'wine-tasting', 'cooking-classes', 'nightclubs', 'bars', 'live-music', 'shopping', 'photography', 'spa', 'yoga', 'safari', 'wildlife-watching', 'beach-clubs', 'cycling', 'golf'].map(activity => (
                 <button
                   key={activity}
                   className={`option-btn ${formData.activities.includes(activity) ? 'selected' : ''}`}
                   onClick={() => toggleArrayItem('activities', activity)}
-                  disabled={formData.activities.length >= 5 && !formData.activities.includes(activity)}
                 >
-                  {activity.replace('_', ' ')}
+                  {activity.replace('-', ' ')}
                 </button>
               ))}
             </div>
-            <p className="selection-count">{formData.activities.length} / 5 selected</p>
-          </div>
-        )}
-
-        {step === 6 && (
-          <div className="form-step">
-            <h3>What's your budget?</h3>
-            <p className="help-text">Daily budget per person (excluding flights)</p>
+            <p className="selection-count">{formData.activities.length} selected</p>
+            
+            <h3 style={{marginTop: '2rem'}}>Budget (per day)</h3>
             <div className="budget-options">
-              <button
-                className={`option-btn ${formData.budget_range[1] === 50 ? 'selected' : ''}`}
-                onClick={() => setFormData({ ...formData, budget_range: [20, 50] })}
-              >
-                💵 Budget<br/>&lt;$50/day
-              </button>
-              <button
-                className={`option-btn ${formData.budget_range[1] === 150 ? 'selected' : ''}`}
-                onClick={() => setFormData({ ...formData, budget_range: [50, 150] })}
-              >
-                💵💵 Moderate<br/>$50-150/day
-              </button>
-              <button
-                className={`option-btn ${formData.budget_range[1] === 300 ? 'selected' : ''}`}
-                onClick={() => setFormData({ ...formData, budget_range: [150, 300] })}
-              >
-                💵💵💵 Comfortable<br/>$150-300/day
-              </button>
-              <button
-                className={`option-btn ${formData.budget_range[1] === 500 ? 'selected' : ''}`}
-                onClick={() => setFormData({ ...formData, budget_range: [300, 500] })}
-              >
-                💵💵💵💵 Luxury<br/>$300+/day
-              </button>
-            </div>
-
-            <h3 style={{marginTop: '2rem'}}>Climate preference?</h3>
-            <div className="options-grid">
-              {['warm', 'mild', 'cool', 'flexible'].map(climate => (
-                <button
-                  key={climate}
-                  className={`option-btn ${formData.climate === climate ? 'selected' : ''}`}
-                  onClick={() => setFormData({ ...formData, climate })}
-                >
-                  {climate}
-                </button>
-              ))}
+              <button className={`option-btn ${formData.budget_range[1] === 50 ? 'selected' : ''}`} onClick={() => setFormData({ ...formData, budget_range: [15, 50] })}>💵 Budget<br/>&lt;$50</button>
+              <button className={`option-btn ${formData.budget_range[1] === 150 ? 'selected' : ''}`} onClick={() => setFormData({ ...formData, budget_range: [50, 150] })}>💵💵 Moderate<br/>$50-150</button>
+              <button className={`option-btn ${formData.budget_range[1] === 300 ? 'selected' : ''}`} onClick={() => setFormData({ ...formData, budget_range: [150, 300] })}>💵💵💵 Comfortable<br/>$150-300</button>
+              <button className={`option-btn ${formData.budget_range[1] === 500 ? 'selected' : ''}`} onClick={() => setFormData({ ...formData, budget_range: [300, 500] })}>💵💵💵💵 Luxury<br/>$300+</button>
             </div>
           </div>
         )}
       </div>
 
       <div className="form-navigation">
-        {step > 1 && (
-          <button className="btn btn-secondary" onClick={() => setStep(step - 1)}>
-            ← Back
-          </button>
-        )}
-        
-        {step < 6 && (
-          <button 
-            className="btn btn-primary" 
-            onClick={() => setStep(step + 1)}
-            disabled={
-              (step === 1 && !formData.name) ||
-              (step === 2 && !formData.geographic_preference) ||
-              (step === 3 && formData.environment.length === 0) ||
-              (step === 4 && formData.style.length === 0) ||
-              (step === 5 && formData.activities.length === 0)
-            }
-          >
-            Next →
-          </button>
-        )}
-
-        {step === 6 && (
-          <button 
-            className="btn btn-primary" 
-            onClick={handleSubmit}
-            disabled={!formData.climate}
-          >
-            ✅ Submit
-          </button>
-        )}
+        {step > 1 && <button className="btn btn-secondary" onClick={() => setStep(step - 1)}>← Back</button>}
+        {step < 4 && <button className="btn btn-primary" onClick={() => setStep(step + 1)} disabled={step === 1 && !formData.name}>Next →</button>}
+        {step === 4 && <button className="btn btn-primary" onClick={handleSubmit}>✅ Submit</button>}
       </div>
     </div>
   );
