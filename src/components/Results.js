@@ -308,7 +308,7 @@ function Results({ tripId, results, tripData, onBack, onRecalculate }) {
         ))}
       </div>
 
- {Object.keys(votes).length > 0 && (
+      {Object.keys(votes).length > 0 && (
         <div className="voting-summary">
           <h3>🗳️ Voting Results</h3>
           <p className="help-text">
