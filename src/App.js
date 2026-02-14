@@ -525,41 +525,51 @@ function PreferencesForm({ tripId, tripData, isOrganizer, onSubmitted, onBack, s
         )}
 
         {step === 4 && (
-		  <div className="form-step">
-		    <h3>What activities excite you?</h3>
-		    <p className="help-text">Select what you enjoy</p>
-		    
-		    {[
-		      ['🌊 Water', ['swimming', 'surfing', 'diving', 'snorkeling', 'sailing', 'kayaking', 'fishing', 'whale-watching']],
-		      ['🎨 Cultural', ['museums', 'art-galleries', 'temples', 'wine-tasting', 'cooking-classes', 'local-markets']],
-		      ['🏔️ Adventure', ['hiking', 'rock-climbing', 'skiing', 'snowboarding', 'safari', 'wildlife-watching', 'zip-lining', 'paragliding']],
-		      ['🧘 Wellness', ['spa', 'yoga', 'hot-springs', 'massage']],
-		      ['🎉 Nightlife', ['nightclubs', 'bars', 'live-music', 'rooftop-bars']],
-		      ['🚶 Leisure', ['shopping', 'photography', 'cycling', 'golf', 'beach-clubs']]
-		    ].map(([category, acts]) => (
-		      <div key={category} style={{marginBottom: '1rem', border: '1px solid #ddd', padding: '10px', borderRadius: '8px'}}>
-		        <h4 style={{margin: '0 0 10px 0'}}>{category}</h4>
-		        <div className="options-grid">
-		          {acts.map(activity => (
-		            <button key={activity} className={`option-btn ${formData.activities.includes(activity) ? 'selected' : ''}`}
-		              onClick={() => toggleArrayItem('activities', activity)} style={{fontSize: '13px', padding: '6px 12px'}}>
-		              {activity.replace('-', ' ')}
-		            </button>
-		          ))}
-		        </div>
-		      </div>
-		    ))}
-		    
-		    <p className="selection-count">{formData.activities.length} selected</p>
-		    
-		    <h3 style={{marginTop: '2rem'}}>Budget (per day)</h3>
-		    <div className="budget-options">
-		      <button className={`option-btn ${formData.budget_range[1] === 50 ? 'selected' : ''}`} onClick={() => setFormData({ ...formData, budget_range: [15, 50] })}>💵 Budget<br/>&lt;$50</button>
-		      <button className={`option-btn ${formData.budget_range[1] === 150 ? 'selected' : ''}`} onClick={() => setFormData({ ...formData, budget_range: [50, 150] })}>💵💵 Moderate<br/>$50-150</button>
-		      <button className={`option-btn ${formData.budget_range[1] === 300 ? 'selected' : ''}`} onClick={() => setFormData({ ...formData, budget_range: [150, 300] })}>💵💵💵 Comfortable<br/>$150-300</button>
-		      <button className={`option-btn ${formData.budget_range[1] === 500 ? 'selected' : ''}`} onClick={() => setFormData({ ...formData, budget_range: [300, 500] })}>💵💵💵💵 Luxury<br/>$300+</button>
-		    </div>
-		  </div>
-		)}
+          <div className="form-step">
+            <h3>What activities excite you?</h3>
+            <p className="help-text">Select what you enjoy</p>
+            
+            {[
+              ['🌊 Water', ['swimming', 'surfing', 'diving', 'snorkeling', 'sailing', 'kayaking', 'fishing', 'whale-watching']],
+              ['🎨 Cultural', ['museums', 'art-galleries', 'temples', 'wine-tasting', 'cooking-classes', 'local-markets']],
+              ['🏔️ Adventure', ['hiking', 'rock-climbing', 'skiing', 'snowboarding', 'safari', 'wildlife-watching', 'zip-lining', 'paragliding']],
+              ['🧘 Wellness', ['spa', 'yoga', 'hot-springs', 'massage']],
+              ['🎉 Nightlife', ['nightclubs', 'bars', 'live-music', 'rooftop-bars']],
+              ['🚶 Leisure', ['shopping', 'photography', 'cycling', 'golf', 'beach-clubs']]
+            ].map(([category, acts]) => (
+              <div key={category} style={{marginBottom: '1rem', border: '1px solid #ddd', padding: '10px', borderRadius: '8px'}}>
+                <h4 style={{margin: '0 0 10px 0'}}>{category}</h4>
+                <div className="options-grid">
+                  {acts.map(activity => (
+                    <button key={activity} className={`option-btn ${formData.activities.includes(activity) ? 'selected' : ''}`}
+                      onClick={() => toggleArrayItem('activities', activity)} style={{fontSize: '13px', padding: '6px 12px'}}>
+                      {activity.replace('-', ' ')}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+            
+            <p className="selection-count">{formData.activities.length} selected</p>
+            
+            <h3 style={{marginTop: '2rem'}}>Budget (per day)</h3>
+            <div className="budget-options">
+              <button className={`option-btn ${formData.budget_range[1] === 50 ? 'selected' : ''}`} onClick={() => setFormData({ ...formData, budget_range: [15, 50] })}>💵 Budget<br/>&lt;$50</button>
+              <button className={`option-btn ${formData.budget_range[1] === 150 ? 'selected' : ''}`} onClick={() => setFormData({ ...formData, budget_range: [50, 150] })}>💵💵 Moderate<br/>$50-150</button>
+              <button className={`option-btn ${formData.budget_range[1] === 300 ? 'selected' : ''}`} onClick={() => setFormData({ ...formData, budget_range: [150, 300] })}>💵💵💵 Comfortable<br/>$150-300</button>
+              <button className={`option-btn ${formData.budget_range[1] === 500 ? 'selected' : ''}`} onClick={() => setFormData({ ...formData, budget_range: [300, 500] })}>💵💵💵💵 Luxury<br/>$300+</button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="form-navigation">
+        {step > 1 && <button className="btn btn-secondary" onClick={() => setStep(step - 1)}>← Back</button>}
+        {step < 4 && <button className="btn btn-primary" onClick={() => setStep(step + 1)} disabled={step === 1 && !formData.name}>Next →</button>}
+        {step === 4 && <button className="btn btn-primary" onClick={handleSubmit}>✅ Submit</button>}
+      </div>
+    </div>
+  );
+}
 
 export default App;
