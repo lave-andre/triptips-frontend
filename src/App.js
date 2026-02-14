@@ -319,8 +319,9 @@ useEffect(() => {
 		  <div className="info-box" style={{margin: '2rem auto', maxWidth: '600px'}}>
 		    <h3>✈️ {tripData.trip_name}</h3>
 		    <p><strong>Organized by:</strong> {tripData.organizer_name}</p>
-		    <p><strong>Type:</strong> {tripData.trip_type}</p>
-		    <p><strong>Duration:</strong> {tripData.duration_days} days</p>
+		    <p><strong>Type:</strong> {tripData.trip_type || 'N/A'}</p>
+		    <p><strong>Duration:</strong> {tripData.duration_days || 'N/A'} days</p>
+		    <p><strong>Looking in:</strong> {tripData.geographic_scope || 'Anywhere'}</p>
 		  </div>
 		)}
 	    <PreferencesForm 
