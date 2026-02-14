@@ -21,7 +21,9 @@ function CreateTrip({ onTripCreated }) {
       organizer_name: organizerName,
       geographic_scope: geographicScope,
       duration_days: duration,
-      trip_type: tripType
+      trip_type: tripType === 'family' ? `family_${familyAge}` : 
+                 tripType === 'corporate' ? `corporate_${corporateType}` : 
+                 tripType
     };
 
     try {
