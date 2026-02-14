@@ -5,7 +5,9 @@ function CreateTrip({ onTripCreated }) {
   const [organizerName, setOrganizerName] = useState('');
   const [geographicScope, setGeographicScope] = useState('Anywhere');
   const [duration, setDuration] = useState(7);  // ADD THIS
-  const [tripType, setTripType] = useState('friends_adventure');  // ADD THIS
+  const [tripType, setTripType] = useState('friends_adventure');
+  const [familyAge, setFamilyAge] = useState('kids');
+  const [corporateType, setCorporateType] = useState('teambuilding');
 
   const geographicOptions = [
     'Anywhere', 'Europe', 'Asia', 'North America', 'South America', 'Africa', 'Oceania'
