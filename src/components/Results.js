@@ -96,7 +96,7 @@ function Results({ tripId, results, tripData, onBack, onRecalculate }) {
         <h2>📍 Best Cities in {selectedRegion.region_name}</h2>
         <p className="help-text">Here are the top cities that match your group's preferences</p>
 
-        {cities.length === 0 ? (
+        {!cities || cities.length === 0 ? (
           <div className="info-box">
             <p>Detailed city data for this region is coming soon! For now, research cities in {selectedRegion.region_name} and plan your itinerary.</p>
           </div>
@@ -107,15 +107,14 @@ function Results({ tripId, results, tripData, onBack, onRecalculate }) {
                 <div className="city-header">
                   <div>
                     <h3>{idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : '📍'} {city.city_name}</h3>
-                    <p className="match-badge">{city.match_percentage}% match</p>
+                    <p className="match-badge">{city.match_percentage || 0}% match</p>
                   </div>
-                  <p className="budget">💰 ${city.budget_range[0]}-${city.budget_range[1]}/day</p>
                 </div>
-
+            
                 {city.best_for && (
                   <p className="best-for">🎯 {city.best_for}</p>
                 )}
-
+            
                 {city.pros && city.pros.length > 0 && (
                   <div className="pros-section">
                     <strong>Highlights:</strong>
@@ -126,82 +125,79 @@ function Results({ tripId, results, tripData, onBack, onRecalculate }) {
                     </ul>
                   </div>
                 )}
-
-                <div className="user-fit">
-                  <strong>Who it's best for:</strong>
-                  {city.user_breakdown.map((user, i) => (
-                    <div key={i} className="user-match">
-                      <span className={`sentiment sentiment-${user.sentiment.toLowerCase().replace(' ', '-')}`}>
-                        {user.sentiment}:
-                      </span>
-                      <span>{user.name} ({user.match_percentage.toFixed(0)}%)</span>
-                    </div>
-                  ))}
-                </div>
+            
+                {city.user_breakdown && city.user_breakdown.length > 0 && (
+                  <div className="user-fit">
+                    <strong>Who it's best for:</strong>
+                    {city.user_breakdown.map((user, i) => (
+                      <div key={i} className="user-match">
+                        <span className={`sentiment sentiment-${user.sentiment.toLowerCase().replace(' ', '-')}`}>
+                          {user.sentiment}:
+                        </span>
+                        <span>{user.name} ({user.match_percentage.toFixed(0)}%)</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  return (
-    <div className="results-view">
-      <button className="btn btn-text" onClick={onBack}>← Back to Home</button>
-
-      <h2>🎯 Your Top Destination Matches{tripData?.trip_name ? ` for "${tripData.trip_name}"` : ''}!</h2>
-
-      <div className="info-box" style={{marginBottom: '1rem'}}>
-        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-          <div>
-            <strong>👥 {participantCount} participant{participantCount !== 1 ? 's' : ''} submitted preferences</strong>
-            <p style={{margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: '#666'}}>
-              More people joined? Recalculate to include their preferences.
-            </p>
-          </div>
-          <button 
-              className="btn btn-primary"
-              onClick={(e) => {
-                if (!window.confirm('Recalculate with latest preferences?')) return;
-                
-                // Show loading state
-                e.target.disabled = true;
-                e.target.textContent = '⏳ Calculating...';
-                
-                fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}/calculate`, {
-                  method: 'POST'
-                })
-                  .then(r => r.json())
-                  .then(data => {
-                    if (data.success) {
-                      // Fetch updated participant count
-                      fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}`)
-                        .then(r2 => r2.json())
-                        .then(tripData => {
-                          if (tripData.success && tripData.trip.participants) {
-                            setParticipantCount(tripData.trip.participants.length);
-                          }
-                        });
-                      
-                      // Update results through callback
-                      onRecalculate(data.results);
-                      alert('✅ Results updated with ' + participantCount + ' participants!');
-                    } else {
-                      alert('Error recalculating: ' + data.error);
-                    }
-                  })
-                  .catch(err => alert('Error: ' + err))
-                  .finally(() => {
-                    e.target.disabled = false;
-                    e.target.textContent = '🔄 Recalculate';
-                  });
-              }}
-            >
-              🔄 Recalculate
-            </button>
-        </div>
-      </div>
+            
+              return (
+                <div className="results-view">
+                  <button className="btn btn-text" onClick={onBack}>← Back to Home</button>
+            
+                  <h2>🎯 Your Top Destination Matches{tripData?.trip_name ? ` for "${tripData.trip_name}"` : ''}!</h2>
+            
+                  <div className="info-box" style={{marginBottom: '1rem'}}>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                      <div>
+                        <strong>👥 {participantCount} participant{participantCount !== 1 ? 's' : ''} submitted preferences</strong>
+                        <p style={{margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: '#666'}}>
+                          More people joined? Recalculate to include their preferences.
+                        </p>
+                      </div>
+                      <button 
+                          className="btn btn-primary"
+                          onClick={(e) => {
+                            if (!window.confirm('Recalculate with latest preferences?')) return;
+                            
+                            // Show loading state
+                            e.target.disabled = true;
+                            e.target.textContent = '⏳ Calculating...';
+                            
+                            fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}/calculate`, {
+                              method: 'POST'
+                            })
+                              .then(r => r.json())
+                              .then(data => {
+                                if (data.success) {
+                                  // Fetch updated participant count
+                                  fetch(`https://triptips-backend.onrender.com/api/trip/${tripId}`)
+                                    .then(r2 => r2.json())
+                                    .then(tripData => {
+                                      if (tripData.success && tripData.trip.participants) {
+                                        setParticipantCount(tripData.trip.participants.length);
+                                      }
+                                    });
+                                  
+                                  // Update results through callback
+                                  onRecalculate(data.results);
+                                  alert('✅ Results updated with ' + participantCount + ' participants!');
+                                } else {
+                                  alert('Error recalculating: ' + data.error);
+                                }
+                              })
+                              .catch(err => alert('Error: ' + err))
+                              .finally(() => {
+                                e.target.disabled = false;
+                                e.target.textContent = '🔄 Recalculate';
+                              });
+                          }}
+                        >
+                          🔄 Recalculate
+                        </button>
+                    </div>
+                  </div>
 
       {results.geographic_analysis && results.geographic_analysis.is_split && (
         <div className="info-box warning">
