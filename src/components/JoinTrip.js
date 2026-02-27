@@ -85,7 +85,3 @@ function JoinTrip({ onJoin, onBack }) {
 }
 
 export default JoinTrip;
-  );
-}
-
-export default JoinTrip;
