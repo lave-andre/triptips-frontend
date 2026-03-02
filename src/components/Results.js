@@ -38,15 +38,22 @@ function Results({ tripId, results, tripData, onBack, onRecalculate }) {
           const totalVotes = data.total_votes || 0;
           const thisRegionVotes = data.vote_counts[regionId] || 0;
           const majority = Math.ceil(participantCount / 2);
+
+          // Check if everyone has voted
+          const totalVotes = Object.values(data.vote_counts).reduce((sum, count) => sum + count, 0);
           
-          if (thisRegionVotes >= majority) {
-            const region = results.regions?.find(r => r.region_id === regionId);
-            if (region) {
-              alert(`🎉 Majority reached! ${region.region_name} wins with ${thisRegionVotes} votes!`);
-              handleSelectRegion(region);
+          if (totalVotes === participantCount) {
+            // Everyone voted - find winner
+            const maxVotes = Math.max(...Object.values(data.vote_counts));
+            
+            if (thisRegionVotes === maxVotes) {
+              const region = results.regions?.find(r => r.region_id === regionId);
+              if (region) {
+                alert(`🎉 Everyone voted! ${region.region_name} wins with ${thisRegionVotes} votes!`);
+                handleSelectRegion(region);
             }
           } else {
-            alert(`Vote recorded! ${thisRegionVotes}/${majority} votes needed for majority.`);
+            alert(`Vote recorded! ${totalVotes}/${participantCount} votes collected.`);
           }
         }
       });
