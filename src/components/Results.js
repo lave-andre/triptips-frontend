@@ -310,26 +310,31 @@ function Results({ tripId, results, tripData, onBack, onRecalculate }) {
         <div className="voting-summary">
           <h3>🗳️ Voting Results</h3>
           <p className="help-text">
-            {Math.ceil(participantCount / 2)} votes needed for majority
+            {Object.values(votes).reduce((sum, count) => sum + count, 0)} / {participantCount} participants voted
           </p>
           {Object.entries(votes)
             .sort((a, b) => b[1] - a[1])
             .map(([regionId, count]) => {
               const region = results.regions.find(r => r.region_id === regionId);
-              const majority = Math.ceil(participantCount / 2);
-              const isMajority = count >= majority;
+              const totalVotes = Object.values(votes).reduce((sum, c) => sum + c, 0);
+              const everyoneVoted = totalVotes === participantCount;
+              const maxVotes = Math.max(...Object.values(votes));
+              const isWinner = everyoneVoted && count === maxVotes;
               
               return region ? (
                 <div 
                   key={regionId} 
                   className="vote-result"
                   style={{
-                    background: isMajority ? '#d4edda' : 'white',
-                    border: isMajority ? '2px solid #28a745' : '1px solid #e0e0e0'
+                    background: isWinner ? '#d4edda' : 'white',
+                    border: isWinner ? '2px solid #28a745' : '1px solid #e0e0e0',
+                    padding: '10px',
+                    marginBottom: '10px',
+                    borderRadius: '8px'
                   }}
                 >
                   <strong>{region.region_name}</strong>: {count} vote{count > 1 ? 's' : ''}
-                  {isMajority && ' 🏆 WINNER!'}
+                  {isWinner && ' 🏆 WINNER!'}
                 </div>
               ) : null;
             })}
