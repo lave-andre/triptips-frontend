@@ -17,7 +17,6 @@ function Results({ tripId, results, tripData, onBack, onRecalculate }) {
       })
       .catch(err => console.error('Error fetching participant count:', err));
   }, [tripId]);
-  
   const handleVote = (regionId) => {
     const userName = prompt("Enter your name to vote:");
     if (!userName) return;
@@ -35,11 +34,7 @@ function Results({ tripId, results, tripData, onBack, onRecalculate }) {
         if (data.success) {
           setVotes(data.vote_counts);
           
-          const totalVotes = data.total_votes || 0;
           const thisRegionVotes = data.vote_counts[regionId] || 0;
-          const majority = Math.ceil(participantCount / 2);
-
-          // Check if everyone has voted
           const totalVotes = Object.values(data.vote_counts).reduce((sum, count) => sum + count, 0);
           
           if (totalVotes === participantCount) {
@@ -51,6 +46,7 @@ function Results({ tripId, results, tripData, onBack, onRecalculate }) {
               if (region) {
                 alert(`🎉 Everyone voted! ${region.region_name} wins with ${thisRegionVotes} votes!`);
                 handleSelectRegion(region);
+              }
             }
           } else {
             alert(`Vote recorded! ${totalVotes}/${participantCount} votes collected.`);
